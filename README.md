@@ -5,12 +5,14 @@ A Telegram bot which reminds you about expiring medicines.
 ## Setup
 
 1. Clone the repository:
+
    ```
    git clone https://github.com/yourusername/tab-bot.git
    cd tab-bot
    ```
 
 2. Install dependencies:
+
    ```
    npm install
    ```
@@ -23,6 +25,7 @@ A Telegram bot which reminds you about expiring medicines.
 ## Development
 
 - Run in development mode (with hot reloading):
+
   ```
   npm run dev
   ```
