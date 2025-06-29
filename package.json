@@ -13,7 +13,9 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "husky",
+    "pre-commit": "lint-staged"
   },
   "keywords": [],
   "author": "",
@@ -23,7 +25,9 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^24.0.7",
     "eslint": "^9.30.0",
+    "husky": "^9.1.7",
     "jest": "^30.0.3",
+    "lint-staged": "^16.1.2",
     "prettier": "3.6.2",
     "ts-jest": "^29.4.0",
     "ts-node": "^10.9.2",
@@ -34,5 +38,12 @@
     "dotenv": "^17.0.0",
     "sqlite3": "^5.1.7",
     "telegraf": "^4.16.3"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css,yml,yaml}": "prettier --write"
   }
 }
