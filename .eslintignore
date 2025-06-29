@@ -1,0 +1,18 @@
+# Build output
+dist/
+
+# Dependencies
+node_modules/
+
+# Test configuration
+jest.config.js
+
+# ESLint configuration
+.eslintrc.js
+
+# Coverage output
+coverage/
+
+# Environment variables
+.env
+.env.*
