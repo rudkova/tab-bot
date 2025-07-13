@@ -13,7 +13,8 @@ datasource db {
 model User {
   id          Int           @id @default(autoincrement())
   telegramId  BigInt        @unique @map("telegram_id")
-  username    String
+  chatId      BigInt        @unique @map("chat_id")
+  username    String?
   firstName   String?       @map("first_name")
   timezone    String        @default("UTC")
   createdAt   DateTime      @default(now()) @map("created_at")

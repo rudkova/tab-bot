@@ -24,6 +24,13 @@ A Telegram bot which reminds you about expiring medicines.
 
 ## Development
 
+- To start from scratch
+
+```
+psql postgres -c "CREATE DATABASE tabs_bot;"
+npx prisma migrate dev --name init
+```
+
 - Run in development mode (with hot reloading):
 
   ```
