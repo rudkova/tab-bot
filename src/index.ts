@@ -1,7 +1,7 @@
 import bot from './bot/bot.ts';
 import { setupCommands } from './bot/router.ts';
 
-setupCommands(bot);
+await setupCommands(bot);
 
 bot
   .launch()
