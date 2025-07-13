@@ -1,15 +1,20 @@
 /**
  * Tab-Bot - A Telegram bot for medicine expiration reminders
  */
+import bot from './bot/bot.js';
+import { setupCommands } from './bot/router.js';
 
-// Basic TypeScript example to verify the setup
-const greet = (name: string): string => {
-  return `Hello, ${name}! Welcome to Tab-Bot.`;
-};
+setupCommands(bot);
 
-console.log(greet('User'));
+bot
+  .launch()
+  .then(() => {
+    console.log('Bot started successfully');
+  })
+  .catch(err => {
+    console.error('Error starting bot:', err);
+  });
 
-// This will be the entry point for the Telegram bot
-// TODO: Implement the actual bot functionality
-
-export {};
+// Enable graceful stop
+process.once('SIGINT', () => bot.stop('SIGINT'));
+process.once('SIGTERM', () => bot.stop('SIGTERM'));
