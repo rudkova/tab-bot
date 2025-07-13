@@ -1,8 +1,5 @@
-/**
- * Tab-Bot - A Telegram bot for medicine expiration reminders
- */
-import bot from './bot/bot.js';
-import { setupCommands } from './bot/router.js';
+import bot from './bot/bot.ts';
+import { setupCommands } from './bot/router.ts';
 
 setupCommands(bot);
 

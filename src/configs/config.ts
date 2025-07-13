@@ -1,7 +1,5 @@
-// Determine environment
 const NODE_ENV = process.env.NODE_ENV || 'local';
 
-// Log loaded configuration (without sensitive data)
 console.log(`Environment: ${NODE_ENV}`);
 
 const getEnvVar = (name: string, isRequired = false, defaultValue = ''): string => {
