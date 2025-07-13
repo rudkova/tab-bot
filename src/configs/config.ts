@@ -21,4 +21,8 @@ export const config = {
   app: {
     env: NODE_ENV,
   },
+
+  database: {
+    url: getEnvVar('DATABASE_URL', true),
+  },
 };
