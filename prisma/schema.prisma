@@ -16,7 +16,7 @@ model User {
   chatId      BigInt        @unique @map("chat_id")
   username    String?
   firstName   String?       @map("first_name")
-  timezone    String        @default("UTC")
+  timezone    String?       @default("UTC")
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @default(now()) @updatedAt @map("updated_at")
   medications Medication[]
