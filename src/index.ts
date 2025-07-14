@@ -1,7 +1,6 @@
-import bot from './bot/bot.ts';
-import { setupCommands } from './bot/router.ts';
+import { createBot } from './bot/BotFactory.ts';
 
-await setupCommands(bot);
+const bot = await createBot();
 
 bot
   .launch()
