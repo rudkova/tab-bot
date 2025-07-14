@@ -1,4 +1,5 @@
 import { Telegraf } from 'telegraf';
+import { createOrGetUser, getUserInfo } from '../features/user/services/userService.ts';
 
 const commands = [
   { command: 'start', description: 'Start the bot' },
@@ -19,7 +20,9 @@ const HELP_DESCRIPTION =
 const setupCommands = async (bot: Telegraf) => {
   await bot.telegram.setMyCommands(commands);
 
+  // todo personalized welcome message
   bot.start(ctx => {
+    console.log(`${JSON.stringify(ctx.from, null, 2)}`);
     return ctx.reply('Welcome to Tab-Bot! I can help you track your medicine expiration dates.');
   });
 
@@ -27,11 +30,27 @@ const setupCommands = async (bot: Telegraf) => {
     return ctx.reply(HELP_DESCRIPTION);
   });
 
-  // Add medication command
-  bot.command('add_medication', ctx => {
-    return ctx.reply(
-      'Please provide details about the medication you want to add (name, expiration date, etc.)'
-    );
+  bot.command('add_medication', async ctx => {
+    const userInfo = getUserInfo(ctx, ctx.chat.id);
+
+    try {
+      const user = await createOrGetUser(userInfo);
+      console.log(
+        `User created or found. telegramId=${user.telegramId}, chatId=${user.chatId}, username=${user.username}`
+      );
+      return ctx.reply(
+        'Please provide details about the medication you want to add (name, expiration date, etc.)'
+      );
+    } catch (e) {
+      // todo add error message
+      console.error('Could not create or get user', e);
+      return ctx.reply('Sorry, I could not identify you. Please try again later.');
+    }
+
+    // ask user medication name
+    // ask user expiration date
+    // ask user note
+    // save medication
   });
 
   // Write to developer command
