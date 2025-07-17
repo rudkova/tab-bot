@@ -21,6 +21,9 @@ export class UserService {
     return this.userRepository.createUserEntity(userInfo);
   }
 
+  async findUserByTelegramId(telegramId: number): Promise<User | null> {
+    return this.userRepository.findUserByTelegramId(telegramId);
+  }
   /**
    * Extracts user information from the Telegraf context
    * @param ctx The Telegraf context

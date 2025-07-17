@@ -18,8 +18,7 @@ const parseDate = (
   const twoMonthsFromNow = addMonths(new Date(), 2);
   if (isBefore(parsedDate, twoMonthsFromNow)) {
     return {
-      errorMessage:
-        'Date must be at least two months from today. Please enter the date in ${config.app.dateFormat.toUpperCase()} format:',
+      errorMessage: `Date must be at least two months from today. Please enter the date in ${config.app.dateFormat.toUpperCase()} format:`,
     };
   }
 

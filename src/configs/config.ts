@@ -20,6 +20,7 @@ export const config = {
 
   app: {
     env: NODE_ENV,
+    dateFormat: 'yyyy-MM-dd',
   },
 
   database: {
