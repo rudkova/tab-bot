@@ -22,8 +22,8 @@ export class BotRouterService {
   private readonly HELP_DESCRIPTION =
     'Available commands:\n' +
     `${this.commands.map(c => `/${c.command} - ${c.description}`).join('\n')}`;
-
   private readonly UNKNOWN_COMMAND = `Unknown command. ${this.HELP_DESCRIPTION}`;
+  private readonly BOT_IS_STARTED = `You have already started bot. ${this.HELP_DESCRIPTION}`;
 
   constructor(
     private readonly userService: UserService,
@@ -38,10 +38,14 @@ export class BotRouterService {
   async setupCommands(bot: Telegraf): Promise<void> {
     await bot.telegram.setMyCommands(this.commands);
 
-    // todo personalized welcome message
-    bot.start(ctx => {
-      console.log(`${JSON.stringify(ctx.from, null, 2)}`);
-      // TODO another answer if already started
+    bot.start(async ctx => {
+      const { telegramId } = this.userService.getUserInfo(ctx, ctx.chat.id);
+      const user = await this.userService.findUserByTelegramId(telegramId);
+
+      if (user !== null) {
+        return ctx.reply(this.BOT_IS_STARTED);
+      }
+
       return ctx.reply('Welcome to Tab-Bot! I can help you track your medicine expiration dates.');
     });
 
