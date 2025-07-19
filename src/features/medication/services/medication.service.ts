@@ -1,5 +1,5 @@
 import type { Medication } from '@prisma/client';
-import { MedicationRepository } from '../repositories/medicationRepository.ts';
+import { MedicationRepository } from '../repositories/medication.repository.ts';
 import type { MedicationType } from '../types/medication.type.ts';
 
 export class MedicationService {

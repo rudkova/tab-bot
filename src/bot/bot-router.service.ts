@@ -1,16 +1,15 @@
 import { Telegraf } from 'telegraf';
-import { UserService } from '../features/user/services/userService.ts';
+import { UserService } from '../features/user/services/user.service.ts';
 import { message } from 'telegraf/filters';
 import { parseDate } from '../shared/utils/date.util.ts';
-import { MedicationService } from '../features/medication/services/medicationService.ts';
-import type { ConversationStateService } from '../shared/conversation-state/conversationStateService.ts';
+import { MedicationService } from '../features/medication/services/medication.service.ts';
+import type { ConversationStateService } from '../shared/conversation-state/conversation-state.service.ts';
 import {
   type ConversationData,
   ConversationState,
-} from '../shared/conversation-state/conversationStateStore.interface.ts';
+} from '../shared/conversation-state/conversation-state-store.interface.ts';
 import type { TextMessageContext } from './types/context.type.ts';
 
-// todo rename files to stick to one style
 export class BotRouterService {
   private readonly commands = [
     { command: 'start', description: 'Start the bot' },

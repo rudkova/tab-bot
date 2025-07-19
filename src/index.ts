@@ -1,4 +1,4 @@
-import { createBot } from './bot/BotFactory.ts';
+import { createBot } from './bot/bot-factory.ts';
 
 const bot = await createBot();
 

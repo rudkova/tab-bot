@@ -2,8 +2,8 @@ import type { MakeOptional } from '../types/utils.types.ts';
 import type {
   ConversationData,
   ConversationStateStoreInterface,
-} from './conversationStateStore.interface.ts';
-import { InMemoryConversationStateStore } from './inMemoryConversationStateStore.service.ts';
+} from './conversation-state-store.interface.ts';
+import { InMemoryConversationStateStore } from './in-memory-conversation-state-store.service.ts';
 
 export class ConversationStateService {
   constructor(

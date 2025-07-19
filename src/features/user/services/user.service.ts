@@ -1,7 +1,7 @@
 import type { User } from '@prisma/client';
 import { Context } from 'telegraf';
-import { UserRepository } from '../repositories/userRepository.ts';
-import type { UserInfo } from '../models/UserInfo.ts';
+import { UserRepository } from '../repositories/user.repository.ts';
+import type { UserInfo } from '../models/user-info.model.ts';
 
 export class UserService {
   constructor(private readonly userRepository: UserRepository = new UserRepository()) {}

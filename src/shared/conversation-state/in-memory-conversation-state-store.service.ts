@@ -1,7 +1,7 @@
 import type {
   ConversationData,
   ConversationStateStoreInterface,
-} from './conversationStateStore.interface.ts';
+} from './conversation-state-store.interface.ts';
 import type { MakeOptional } from '../types/utils.types.ts';
 
 export class InMemoryConversationStateStore implements ConversationStateStoreInterface {
