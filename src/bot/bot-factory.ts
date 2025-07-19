@@ -4,6 +4,7 @@ import { BotRouterService } from './bot-router.service.ts';
 import { config } from '../configs/config.ts';
 import { ConversationStateService } from '../shared/conversation-state/conversation-state.service.ts';
 import { MedicationService } from '../features/medication/services/medication.service.ts';
+import { MedicationValidator } from '../features/medication/validators/medication.validator.ts';
 
 export async function createBot(): Promise<Telegraf> {
   const bot = new Telegraf(config.bot.token);
@@ -12,8 +13,14 @@ export async function createBot(): Promise<Telegraf> {
   const userService = new UserService();
   const conversationStateService = new ConversationStateService();
   const medicationService = new MedicationService();
+  const medicationValidator = new MedicationValidator();
 
-  const router = new BotRouterService(userService, conversationStateService, medicationService);
+  const router = new BotRouterService(
+    userService,
+    conversationStateService,
+    medicationService,
+    medicationValidator
+  );
 
   await router.setupCommands(bot);
 

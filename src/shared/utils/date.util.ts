@@ -1,30 +1,23 @@
-import { parse, isValid, format, addMonths, isBefore } from 'date-fns';
+import { parse, isValid, format } from 'date-fns';
 import { config } from '../../configs/config.ts';
 
-const parseDate = (
-  dateStr: string
-): {
-  parsedDate?: Date;
-  errorMessage?: string;
-} => {
-  const parsedDate = parse(dateStr, config.app.dateFormat, new Date());
+/**
+ * Parses a date string using the configured format
+ * @param dateStr - Date string to parse
+ * @param dateFormat - Format of date. default is ${config.app.dateFormat}
+ * @returns Parsed Date object or null if invalid
+ * @example
+ * parseDate('2024-12-31') // Returns Date object
+ * parseDate('invalid') // Returns null
+ */
+const parseDate = (dateStr: string, dateFormat = config.app.dateFormat): Date | null => {
+  const parsedDate = parse(dateStr, dateFormat, new Date());
 
-  if (!isValid(parsedDate) || format(parsedDate, config.app.dateFormat) !== dateStr) {
-    return {
-      errorMessage: `Invalid date format. Please enter the date in ${config.app.dateFormat.toUpperCase()} format:`,
-    };
+  if (!isValid(parsedDate) || format(parsedDate, dateFormat) !== dateStr) {
+    return null;
   }
 
-  const twoMonthsFromNow = addMonths(new Date(), 2);
-  if (isBefore(parsedDate, twoMonthsFromNow)) {
-    return {
-      errorMessage: `Date must be at least two months from today. Please enter the date in ${config.app.dateFormat.toUpperCase()} format:`,
-    };
-  }
-
-  return {
-    parsedDate,
-  };
+  return parsedDate;
 };
 
 export { parseDate };

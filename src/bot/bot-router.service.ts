@@ -1,7 +1,6 @@
 import { Telegraf } from 'telegraf';
 import { UserService } from '../features/user/services/user.service.ts';
 import { message } from 'telegraf/filters';
-import { parseDate } from '../shared/utils/date.util.ts';
 import { MedicationService } from '../features/medication/services/medication.service.ts';
 import type { ConversationStateService } from '../shared/conversation-state/conversation-state.service.ts';
 import {
@@ -9,6 +8,7 @@ import {
   ConversationState,
 } from '../shared/conversation-state/conversation-state-store.interface.ts';
 import type { TextMessageContext } from './types/context.type.ts';
+import type { MedicationValidator } from '../features/medication/validators/medication.validator.ts';
 
 export class BotRouterService {
   private readonly commands = [
@@ -28,7 +28,8 @@ export class BotRouterService {
   constructor(
     private readonly userService: UserService,
     private readonly conversationStateService: ConversationStateService,
-    private readonly medicationService: MedicationService
+    private readonly medicationService: MedicationService,
+    private readonly medicationValidator: MedicationValidator
   ) {}
 
   /**
@@ -162,7 +163,9 @@ export class BotRouterService {
     chatId: number,
     conversation: ConversationData
   ) {
-    const { parsedDate: expirationDate, errorMessage } = parseDate(ctx.message.text);
+    const { date, errorMessage } = this.medicationValidator.validateExpirationDate(
+      ctx.message.text
+    );
 
     if (errorMessage) {
       return ctx.reply(errorMessage);
@@ -171,7 +174,7 @@ export class BotRouterService {
     await this.conversationStateService.setConversationState(chatId, {
       ...conversation,
       state: ConversationState.WAITING_FOR_NOTES,
-      expirationDate,
+      expirationDate: date,
     });
 
     return ctx.reply(
