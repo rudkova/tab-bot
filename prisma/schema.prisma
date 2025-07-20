@@ -30,7 +30,6 @@ model Medication {
   name           String
   expirationDate DateTime       @map("expiration_date")
   notes          String?
-  isActive       Boolean        @default(true) @map("is_active")
   createdAt      DateTime       @default(now()) @map("created_at")
   updatedAt      DateTime       @default(now()) @updatedAt @map("updated_at")
   user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -42,9 +41,8 @@ model Medication {
 model Notification {
   id               Int        @id @default(autoincrement())
   medicationId     Int        @map("medication_id")
-  notificationType String     @map("notification_type")
-  sentAt           DateTime   @default(now()) @map("sent_at")
   medication       Medication @relation(fields: [medicationId], references: [id], onDelete: Cascade)
+  sendDate         DateTime   @map("send_date")
 
   @@map("notifications")
 }
