@@ -3,12 +3,9 @@ import type {
   ConversationData,
   ConversationStateStoreInterface,
 } from './conversation-state-store.interface.ts';
-import { InMemoryConversationStateStore } from './in-memory-conversation-state-store.service.ts';
 
 export class ConversationStateService {
-  constructor(
-    private readonly store: ConversationStateStoreInterface = new InMemoryConversationStateStore()
-  ) {}
+  constructor(private readonly store: ConversationStateStoreInterface) {}
 
   setConversationState(
     chatId: number,

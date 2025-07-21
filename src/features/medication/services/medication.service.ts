@@ -3,9 +3,7 @@ import { MedicationRepository } from '../repositories/medication.repository.ts';
 import type { MedicationType } from '../types/medication.type.ts';
 
 export class MedicationService {
-  constructor(
-    private readonly medicationRepository: MedicationRepository = new MedicationRepository()
-  ) {}
+  constructor(private readonly medicationRepository: MedicationRepository) {}
   /**
    * Create a new medication for a user
    * @param userId The ID of the user

@@ -1,9 +1,8 @@
 import type { PrismaClient, User } from '@prisma/client';
 import type { UserInfo } from '../models/user-info.model.ts';
-import prisma from '../../../shared/database/db.ts';
 
 export class UserRepository {
-  constructor(private readonly prismaClient: PrismaClient = prisma) {}
+  constructor(private readonly prismaClient: PrismaClient) {}
 
   /**
    * Find a user by their Telegram ID

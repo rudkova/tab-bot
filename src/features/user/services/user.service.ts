@@ -4,7 +4,7 @@ import { UserRepository } from '../repositories/user.repository.ts';
 import type { UserInfo } from '../models/user-info.model.ts';
 
 export class UserService {
-  constructor(private readonly userRepository: UserRepository = new UserRepository()) {}
+  constructor(private readonly userRepository: UserRepository) {}
 
   /**
    * Creates a user if it doesn't exist

@@ -1,8 +1,7 @@
-import prisma from '../../../shared/database/db.ts';
 import type { Medication, PrismaClient } from '@prisma/client';
 
 export class MedicationRepository {
-  constructor(private readonly prismaClient: PrismaClient = prisma) {}
+  constructor(private readonly prismaClient: PrismaClient) {}
 
   /**
    * Create a new medication for a user

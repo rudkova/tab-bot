@@ -5,15 +5,25 @@ import { config } from '../configs/config.ts';
 import { ConversationStateService } from '../shared/conversation-state/conversation-state.service.ts';
 import { MedicationService } from '../features/medication/services/medication.service.ts';
 import { MedicationValidator } from '../features/medication/validators/medication.validator.ts';
+import { UserRepository } from '../features/user/repositories/user.repository.ts';
+import { InMemoryConversationStateStore } from '../shared/conversation-state/in-memory-conversation-state-store.service.ts';
+import { MedicationRepository } from '../features/medication/repositories/medication.repository.ts';
+import prisma from '../shared/database/db.ts';
 
 export async function createBot(): Promise<Telegraf> {
   const bot = new Telegraf(config.bot.token);
 
+  // Create repositories
+  const userRepository = new UserRepository(prisma);
+  const medicationRepository = new MedicationRepository(prisma);
+
   // Create services
-  const userService = new UserService();
-  const conversationStateService = new ConversationStateService();
-  const medicationService = new MedicationService();
+  const userService = new UserService(userRepository);
+  const medicationService = new MedicationService(medicationRepository);
   const medicationValidator = new MedicationValidator();
+
+  const store = new InMemoryConversationStateStore();
+  const conversationStateService = new ConversationStateService(store);
 
   const router = new BotRouterService(
     userService,
