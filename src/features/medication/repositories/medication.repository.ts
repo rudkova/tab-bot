@@ -1,4 +1,5 @@
 import type { Medication, PrismaClient } from '@prisma/client';
+import type { MedicationType } from '../types/medication.type.ts';
 
 export class MedicationRepository {
   constructor(private readonly prismaClient: PrismaClient) {}
@@ -20,6 +21,30 @@ export class MedicationRepository {
     return this.prismaClient.medication.create({
       data: {
         userId,
+        name,
+        expirationDate,
+        notes,
+      },
+    });
+  };
+
+  deleteMedication = async (id: number): Promise<Medication> => {
+    return this.prismaClient.medication.delete({
+      where: {
+        id,
+      },
+    });
+  };
+
+  updateMedication = async (
+    id: number,
+    { name, expirationDate, notes }: Partial<MedicationType>
+  ): Promise<Medication> => {
+    return await this.prismaClient.medication.update({
+      where: {
+        id,
+      },
+      data: {
         name,
         expirationDate,
         notes,
