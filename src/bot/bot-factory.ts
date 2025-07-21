@@ -2,13 +2,16 @@ import { Telegraf } from 'telegraf';
 import { UserService } from '../features/user/services/user.service.ts';
 import { BotRouterService } from './bot-router.service.ts';
 import { config } from '../configs/config.ts';
+import prisma from '../shared/database/db.ts';
 import { ConversationStateService } from '../shared/conversation-state/conversation-state.service.ts';
 import { MedicationService } from '../features/medication/services/medication.service.ts';
 import { MedicationValidator } from '../features/medication/validators/medication.validator.ts';
 import { UserRepository } from '../features/user/repositories/user.repository.ts';
 import { InMemoryConversationStateStore } from '../shared/conversation-state/in-memory-conversation-state-store.service.ts';
 import { MedicationRepository } from '../features/medication/repositories/medication.repository.ts';
-import prisma from '../shared/database/db.ts';
+import { NotificationService } from '../features/notification/services/notification.service.ts';
+import { NotificationCron } from '../jobs/notification-cron.ts';
+import { NotificationRepository } from '../features/notification/services/notification.repository.ts';
 
 export async function createBot(): Promise<Telegraf> {
   const bot = new Telegraf(config.bot.token);
@@ -16,11 +19,14 @@ export async function createBot(): Promise<Telegraf> {
   // Create repositories
   const userRepository = new UserRepository(prisma);
   const medicationRepository = new MedicationRepository(prisma);
+  const notificationRepository = new NotificationRepository(prisma);
 
   // Create services
   const userService = new UserService(userRepository);
   const medicationService = new MedicationService(medicationRepository);
   const medicationValidator = new MedicationValidator();
+  const notificationService = new NotificationService(notificationRepository);
+  const notificationCron = new NotificationCron(notificationService);
 
   const store = new InMemoryConversationStateStore();
   const conversationStateService = new ConversationStateService(store);
@@ -33,6 +39,8 @@ export async function createBot(): Promise<Telegraf> {
   );
 
   await router.setupCommands(bot);
+
+  notificationCron.start();
 
   return bot;
 }

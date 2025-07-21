@@ -140,9 +140,10 @@ export class BotRouterService {
 
       const medication = await this.medicationService.createMedication(user.id, medicationData);
 
+      // save notification
       await this.conversationStateService.clearConversationState(chatId);
 
-      return ctx.reply(`Medication "${medication.name}" has been added successfully!`);
+      return ctx.reply(`Medication "${medication.name}" has been added successfully!`); // todo add text: next remind will be
     } catch (error) {
       console.error('Error saving medication:', error);
       await this.conversationStateService.clearConversationState(chatId);
