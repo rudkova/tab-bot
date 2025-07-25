@@ -40,7 +40,7 @@ export class BotRouterService {
     await bot.telegram.setMyCommands(this.commands);
 
     bot.start(async ctx => {
-      const { telegramId } = this.userService.getUserInfo(ctx, ctx.chat.id);
+      const { telegramId } = this.userService.getUserInfo(ctx);
       const user = await this.userService.findUserByTelegramId(telegramId);
 
       if (user !== null) {
@@ -55,7 +55,7 @@ export class BotRouterService {
     });
 
     bot.command('add_medication', async ctx => {
-      const userInfo = this.userService.getUserInfo(ctx, ctx.chat.id);
+      const userInfo = this.userService.getUserInfo(ctx);
 
       try {
         const user = await this.userService.createOrGetUser(userInfo);
@@ -76,7 +76,7 @@ export class BotRouterService {
     });
 
     bot.command('cancel_add_medication', async ctx => {
-      const chatId = ctx.chat.id;
+      const chatId = BigInt(ctx.chat.id);
       const conversationState = await this.conversationStateService.getConversationState(chatId);
 
       if (conversationState) {
@@ -94,7 +94,7 @@ export class BotRouterService {
     });
 
     bot.on(message('text'), async ctx => {
-      const chatId = ctx.chat.id;
+      const chatId = BigInt(ctx.chat.id);
       const conversation = await this.conversationStateService.getConversationState(chatId);
 
       if (conversation === undefined) {
@@ -117,14 +117,14 @@ export class BotRouterService {
     });
   }
 
-  private async handleMedicationSave(ctx: TextMessageContext, chatId: number) {
+  private async handleMedicationSave(ctx: TextMessageContext, chatId: bigint) {
     const conversation = await this.conversationStateService.getConversationState(chatId);
     if (conversation === undefined) {
       return ctx.reply(this.UNKNOWN_COMMAND);
     }
 
     try {
-      const { telegramId } = this.userService.getUserInfo(ctx, chatId);
+      const { telegramId } = this.userService.getUserInfo(ctx);
       const user = await this.userService.findUserByTelegramId(telegramId);
       if (user === null) {
         console.error(`Could not find user by telegram id: ${telegramId}`);
@@ -151,7 +151,7 @@ export class BotRouterService {
     }
   }
 
-  private async handleNotes(notes: string, chatId: number, conversation: ConversationData) {
+  private async handleNotes(notes: string, chatId: bigint, conversation: ConversationData) {
     await this.conversationStateService.setConversationState(chatId, {
       ...conversation,
       state: ConversationState.IDLE,
@@ -161,7 +161,7 @@ export class BotRouterService {
 
   private async handleExpirationDate(
     ctx: TextMessageContext,
-    chatId: number,
+    chatId: bigint,
     conversation: ConversationData
   ) {
     const { date, errorMessage } = this.medicationValidator.validateExpirationDate(
@@ -185,7 +185,7 @@ export class BotRouterService {
 
   private async handleMedicationName(
     ctx: TextMessageContext,
-    chatId: number,
+    chatId: bigint,
     conversation: ConversationData
   ) {
     await this.conversationStateService.setConversationState(chatId, {

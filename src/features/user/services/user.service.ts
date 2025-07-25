@@ -21,26 +21,28 @@ export class UserService {
     return this.userRepository.createUserEntity(userInfo);
   }
 
-  async findUserByTelegramId(telegramId: number): Promise<User | null> {
+  async findUserByTelegramId(telegramId: bigint): Promise<User | null> {
     return this.userRepository.findUserByTelegramId(telegramId);
   }
   /**
    * Extracts user information from the Telegraf context
    * @param ctx The Telegraf context
-   * @param chatId
    * @returns User information
    */
-  getUserInfo(ctx: Context, chatId: number): UserInfo {
+  getUserInfo(ctx: Context): UserInfo {
     if (!ctx.from) {
       throw new Error(`No user information in context. ${JSON.stringify(ctx, null, 2)}`);
     }
-    if (chatId == null) {
+
+    const chatId = ctx.chat?.id;
+
+    if (chatId === undefined) {
       throw new Error(`No chatId for user: ${ctx.from.id}`);
     }
 
     return {
-      chatId,
-      telegramId: ctx.from.id,
+      chatId: BigInt(chatId),
+      telegramId: BigInt(ctx.from.id),
       username: ctx.from.username,
       firstName: ctx.from.first_name,
     };

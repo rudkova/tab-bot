@@ -8,17 +8,17 @@ export class ConversationStateService {
   constructor(private readonly store: ConversationStateStoreInterface) {}
 
   setConversationState(
-    chatId: number,
+    chatId: bigint,
     data: MakeOptional<ConversationData, 'timestamp'>
   ): Promise<void> {
     return this.store.set(chatId, data);
   }
 
-  getConversationState(chatId: number): Promise<ConversationData | undefined> {
+  getConversationState(chatId: bigint): Promise<ConversationData | undefined> {
     return this.store.get(chatId);
   }
 
-  clearConversationState(chatId: number): Promise<void> {
+  clearConversationState(chatId: bigint): Promise<void> {
     return this.store.clear(chatId);
   }
 }

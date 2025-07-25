@@ -9,10 +9,10 @@ export class UserRepository {
    * @param telegramId The Telegram ID of the user
    * @returns The user if found, null otherwise
    */
-  async findUserByTelegramId(telegramId: number): Promise<User | null> {
+  async findUserByTelegramId(telegramId: bigint): Promise<User | null> {
     return this.prismaClient.user.findUnique({
       where: {
-        telegramId: BigInt(telegramId),
+        telegramId,
       },
     });
   }
@@ -25,8 +25,8 @@ export class UserRepository {
   async createUserEntity(userInfo: UserInfo): Promise<User> {
     return this.prismaClient.user.create({
       data: {
-        telegramId: BigInt(userInfo.telegramId),
-        chatId: BigInt(userInfo.chatId),
+        telegramId: userInfo.telegramId,
+        chatId: userInfo.chatId,
         username: userInfo.username,
         firstName: userInfo.firstName,
       },
