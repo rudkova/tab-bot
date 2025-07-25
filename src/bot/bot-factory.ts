@@ -12,6 +12,7 @@ import { MedicationRepository } from '../features/medication/repositories/medica
 import { NotificationService } from '../features/notification/services/notification.service.ts';
 import { NotificationCron } from '../jobs/notification-cron.ts';
 import { NotificationRepository } from '../features/notification/services/notification.repository.ts';
+import { BotService } from './bot.service.ts';
 
 export async function createBot(): Promise<Telegraf> {
   const bot = new Telegraf(config.bot.token);
@@ -22,10 +23,11 @@ export async function createBot(): Promise<Telegraf> {
   const notificationRepository = new NotificationRepository(prisma);
 
   // Create services
+  const botService = new BotService(bot.telegram);
   const userService = new UserService(userRepository);
   const medicationService = new MedicationService(medicationRepository);
   const medicationValidator = new MedicationValidator();
-  const notificationService = new NotificationService(notificationRepository);
+  const notificationService = new NotificationService(notificationRepository, botService);
   const notificationCron = new NotificationCron(notificationService);
 
   const store = new InMemoryConversationStateStore();

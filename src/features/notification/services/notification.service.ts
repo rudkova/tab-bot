@@ -1,8 +1,12 @@
 import { NotificationRepository } from './notification.repository.ts';
 import { startOfDay } from 'date-fns';
+import type { BotService } from '../../../bot/bot.service.ts';
 
 export class NotificationService {
-  constructor(private readonly notificationRepository: NotificationRepository) {}
+  constructor(
+    private readonly notificationRepository: NotificationRepository,
+    private readonly botService: BotService
+  ) {}
 
   /**
    * Set notification date for a medication
@@ -27,7 +31,7 @@ export class NotificationService {
   async sendDueNotifications() {
     const notifications = await this.notificationRepository.getTodayNotifications();
     console.log('notifications', notifications);
-    // bot.send notifications
+    this.botService.sendMessage(notifications);
   }
 
   // todo from 6 to 2 months before expiration. now it works only for 6 months
