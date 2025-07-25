@@ -35,7 +35,8 @@ export async function createBot(): Promise<Telegraf> {
     userService,
     conversationStateService,
     medicationService,
-    medicationValidator
+    medicationValidator,
+    notificationService
   );
 
   await router.setupCommands(bot);

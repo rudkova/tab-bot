@@ -9,6 +9,7 @@ import {
 } from '../shared/conversation-state/conversation-state-store.interface.ts';
 import type { TextMessageContext } from './types/context.type.ts';
 import type { MedicationValidator } from '../features/medication/validators/medication.validator.ts';
+import type { NotificationService } from '../features/notification/services/notification.service.ts';
 
 export class BotRouterService {
   private readonly commands = [
@@ -29,7 +30,8 @@ export class BotRouterService {
     private readonly userService: UserService,
     private readonly conversationStateService: ConversationStateService,
     private readonly medicationService: MedicationService,
-    private readonly medicationValidator: MedicationValidator
+    private readonly medicationValidator: MedicationValidator,
+    private readonly notificationService: NotificationService
   ) {}
 
   /**
@@ -140,7 +142,12 @@ export class BotRouterService {
 
       const medication = await this.medicationService.createMedication(user.id, medicationData);
 
-      // save notification
+      await this.notificationService.createNotification(
+        medication.id,
+        medicationData.expirationDate,
+        chatId
+      );
+
       await this.conversationStateService.clearConversationState(chatId);
 
       return ctx.reply(`Medication "${medication.name}" has been added successfully!`); // todo add text: next remind will be
