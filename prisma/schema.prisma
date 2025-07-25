@@ -28,7 +28,7 @@ model Medication {
   id             Int            @id @default(autoincrement())
   userId         Int            @map("user_id")
   name           String
-  expirationDate DateTime       @map("expiration_date")
+  expirationDate DateTime       @map("expiration_date") @db.Date
   notes          String?
   createdAt      DateTime       @default(now()) @map("created_at")
   updatedAt      DateTime       @default(now()) @updatedAt @map("updated_at")
@@ -43,7 +43,7 @@ model Notification {
   chatId           BigInt     @map("chat_id")
   medicationId     Int        @map("medication_id")
   medication       Medication @relation(fields: [medicationId], references: [id], onDelete: Cascade)
-  sendDate         DateTime   @map("send_date")
+  sendDate         DateTime   @map("send_date") @db.Date
 
   @@map("notifications")
 }
