@@ -10,6 +10,7 @@ import {
 import type { TextMessageContext } from './types/context.type.ts';
 import type { MedicationValidator } from '../features/medication/validators/medication.validator.ts';
 import type { NotificationService } from '../features/notification/services/notification.service.ts';
+import type { BotService } from './bot.service.ts';
 
 export class BotRouterService {
   private readonly commands = [
@@ -27,6 +28,7 @@ export class BotRouterService {
   private readonly BOT_IS_STARTED = `You have already started bot. ${this.HELP_DESCRIPTION}`;
 
   constructor(
+    private readonly botService: BotService,
     private readonly userService: UserService,
     private readonly conversationStateService: ConversationStateService,
     private readonly medicationService: MedicationService,
@@ -42,7 +44,7 @@ export class BotRouterService {
     await bot.telegram.setMyCommands(this.commands);
 
     bot.start(async ctx => {
-      const { telegramId } = this.userService.getUserInfo(ctx);
+      const { telegramId } = this.botService.getTelegramUserInfo(ctx);
       const user = await this.userService.findUserByTelegramId(telegramId);
 
       if (user !== null) {
@@ -57,7 +59,7 @@ export class BotRouterService {
     });
 
     bot.command('add_medication', async ctx => {
-      const userInfo = this.userService.getUserInfo(ctx);
+      const userInfo = this.botService.getTelegramUserInfo(ctx);
 
       try {
         const user = await this.userService.createOrGetUser(userInfo);
@@ -126,7 +128,7 @@ export class BotRouterService {
     }
 
     try {
-      const { telegramId } = this.userService.getUserInfo(ctx);
+      const { telegramId } = this.botService.getTelegramUserInfo(ctx);
       const user = await this.userService.findUserByTelegramId(telegramId);
       if (user === null) {
         console.error(`Could not find user by telegram id: ${telegramId}`);
