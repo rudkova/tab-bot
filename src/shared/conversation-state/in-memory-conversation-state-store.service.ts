@@ -5,13 +5,13 @@ import type {
 import type { MakeOptional } from '../types/utils.types.ts';
 
 export class InMemoryConversationStateStore implements ConversationStateStoreInterface {
-  private conversations = new Map<bigint, ConversationData>();
+  private conversations = new Map<number, ConversationData>();
 
-  async get(chatId: bigint) {
+  async get(chatId: number) {
     return this.conversations.get(chatId);
   }
 
-  async set(chatId: bigint, data: MakeOptional<ConversationData, 'timestamp'>) {
+  async set(chatId: number, data: MakeOptional<ConversationData, 'timestamp'>) {
     this.conversations.set(chatId, {
       state: data.state,
       medicationName: data.medicationName,
@@ -21,7 +21,7 @@ export class InMemoryConversationStateStore implements ConversationStateStoreInt
     });
   }
 
-  async clear(chatId: bigint) {
+  async clear(chatId: number) {
     this.conversations.delete(chatId);
   }
 }

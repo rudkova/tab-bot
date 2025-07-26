@@ -12,8 +12,8 @@ datasource db {
 
 model User {
   id          Int           @id @default(autoincrement())
-  telegramId  BigInt        @unique @map("telegram_id")
-  chatId      BigInt        @unique @map("chat_id")
+  telegramId  Int           @unique @map("telegram_id")
+  chatId      Int           @unique @map("chat_id")
   username    String?
   firstName   String?       @map("first_name")
   timezone    String?       @default("UTC")
@@ -40,7 +40,7 @@ model Medication {
 
 model Notification {
   id               Int        @id @default(autoincrement())
-  chatId           BigInt     @map("chat_id")
+  chatId           Int        @map("chat_id")
   medicationId     Int        @map("medication_id")
   medication       Medication @relation(fields: [medicationId], references: [id], onDelete: Cascade)
   sendDate         DateTime   @map("send_date") @db.Date

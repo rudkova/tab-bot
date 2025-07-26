@@ -78,7 +78,7 @@ export class BotRouterService {
     });
 
     bot.command('cancel_add_medication', async ctx => {
-      const chatId = BigInt(ctx.chat.id);
+      const chatId = ctx.chat.id;
       const conversationState = await this.conversationStateService.getConversationState(chatId);
 
       if (conversationState) {
@@ -96,7 +96,7 @@ export class BotRouterService {
     });
 
     bot.on(message('text'), async ctx => {
-      const chatId = BigInt(ctx.chat.id);
+      const chatId = ctx.chat.id;
       const conversation = await this.conversationStateService.getConversationState(chatId);
 
       if (conversation === undefined) {
@@ -119,7 +119,7 @@ export class BotRouterService {
     });
   }
 
-  private async handleMedicationSave(ctx: TextMessageContext, chatId: bigint) {
+  private async handleMedicationSave(ctx: TextMessageContext, chatId: number) {
     const conversation = await this.conversationStateService.getConversationState(chatId);
     if (conversation === undefined) {
       return ctx.reply(this.UNKNOWN_COMMAND);
@@ -158,7 +158,7 @@ export class BotRouterService {
     }
   }
 
-  private async handleNotes(notes: string, chatId: bigint, conversation: ConversationData) {
+  private async handleNotes(notes: string, chatId: number, conversation: ConversationData) {
     await this.conversationStateService.setConversationState(chatId, {
       ...conversation,
       state: ConversationState.IDLE,
@@ -168,7 +168,7 @@ export class BotRouterService {
 
   private async handleExpirationDate(
     ctx: TextMessageContext,
-    chatId: bigint,
+    chatId: number,
     conversation: ConversationData
   ) {
     const { date, errorMessage } = this.medicationValidator.validateExpirationDate(
@@ -192,7 +192,7 @@ export class BotRouterService {
 
   private async handleMedicationName(
     ctx: TextMessageContext,
-    chatId: bigint,
+    chatId: number,
     conversation: ConversationData
   ) {
     await this.conversationStateService.setConversationState(chatId, {

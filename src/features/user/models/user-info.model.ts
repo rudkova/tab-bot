@@ -1,6 +1,6 @@
 export interface UserInfo {
-  telegramId: bigint;
-  chatId: bigint;
+  telegramId: number;
+  chatId: number;
   username?: string;
   firstName?: string;
 }

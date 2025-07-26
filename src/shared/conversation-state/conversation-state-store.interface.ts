@@ -16,7 +16,7 @@ export interface ConversationData {
 }
 
 export interface ConversationStateStoreInterface {
-  get(chatId: bigint): Promise<ConversationData | undefined>;
-  set(chatId: bigint, data: MakeOptional<ConversationData, 'timestamp'>): Promise<void>;
-  clear(chatId: bigint): Promise<void>;
+  get(chatId: number): Promise<ConversationData | undefined>;
+  set(chatId: number, data: MakeOptional<ConversationData, 'timestamp'>): Promise<void>;
+  clear(chatId: number): Promise<void>;
 }

@@ -7,7 +7,7 @@ export class NotificationRepository {
   async createNotification(
     sendDate: Date,
     medicationId: number,
-    chatId: bigint
+    chatId: number
   ): Promise<Notification | null> {
     return await this.prismaClient.notification.create({
       data: {

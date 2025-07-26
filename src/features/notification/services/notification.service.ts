@@ -14,7 +14,7 @@ export class NotificationService {
   async createNotification(
     medicationId: number,
     expirationDate: Date,
-    chatId: bigint
+    chatId: number
   ): Promise<void> {
     // const notificationDate = this.calculateNotificationDate(expirationDate);
     const notificationDate = startOfDay(new Date());

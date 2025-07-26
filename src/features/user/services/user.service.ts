@@ -21,7 +21,7 @@ export class UserService {
     return this.userRepository.createUserEntity(userInfo);
   }
 
-  async findUserByTelegramId(telegramId: bigint): Promise<User | null> {
+  async findUserByTelegramId(telegramId: number): Promise<User | null> {
     return this.userRepository.findUserByTelegramId(telegramId);
   }
   /**
@@ -41,8 +41,8 @@ export class UserService {
     }
 
     return {
-      chatId: BigInt(chatId),
-      telegramId: BigInt(ctx.from.id),
+      chatId: chatId,
+      telegramId: ctx.from.id,
       username: ctx.from.username,
       firstName: ctx.from.first_name,
     };
