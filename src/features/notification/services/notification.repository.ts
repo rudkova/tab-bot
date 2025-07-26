@@ -26,11 +26,7 @@ export class NotificationRepository {
         sendDate: today,
       },
       include: {
-        medication: {
-          include: {
-            user: true,
-          },
-        },
+        medication: true,
       },
     });
 
