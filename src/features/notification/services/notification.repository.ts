@@ -1,5 +1,6 @@
 import type { PrismaClient, Notification } from '@prisma/client';
 import { startOfDay } from 'date-fns';
+import type { NotificationWithMedication } from '../types/NotificationWithMedication.ts';
 
 export class NotificationRepository {
   constructor(private readonly prismaClient: PrismaClient) {}
@@ -18,7 +19,7 @@ export class NotificationRepository {
     });
   }
 
-  async getTodayNotifications(): Promise<Notification[]> {
+  async getTodayNotificationsWithMedications(): Promise<NotificationWithMedication[]> {
     const today = startOfDay(new Date());
 
     const notifications = await this.prismaClient.notification.findMany({
@@ -30,6 +31,10 @@ export class NotificationRepository {
       },
     });
 
-    return notifications;
+    const map = notifications.map(notification => ({
+      ...notification,
+      chatId: Number(notification.chatId),
+    }));
+    return map;
   }
 }

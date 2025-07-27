@@ -42,6 +42,7 @@ export class BotRouterService {
    */
   async setupCommands(bot: Telegraf): Promise<void> {
     await bot.telegram.setMyCommands(this.commands);
+    await this.setupNotificationHandlers(bot);
 
     bot.start(async ctx => {
       const { telegramId } = this.botService.getTelegramUserInfo(ctx);
@@ -117,6 +118,53 @@ export class BotRouterService {
           await this.conversationStateService.clearConversationState(chatId);
           // todo log
           return ctx.reply('Sorry, something went wrong. Please try again.');
+      }
+    });
+  }
+
+  // TODO
+  private async setupNotificationHandlers(bot: Telegraf): Promise<void> {
+    bot.action(/skip_(\d+)/, async ctx => {
+      if (!ctx.match) {
+        throw new Error('Something went wrong. Please try again later.');
+      }
+
+      const medicationId = parseInt(ctx.match[1]);
+      const result = await this.notificationService.handleSkipNotification(medicationId);
+
+      if (result.success && result.medication) {
+        await ctx.editMessageText(
+          `⏭️ **Notification Postponed**\n\n` +
+            `💊 ${result.medication.name}\n` +
+            // `🔔 Next reminder: ${result.nextNotificationDate.toLocaleDateString()}\n\n` +
+            `✅ *You'll receive another notification in 1 month.*`,
+          { parse_mode: 'Markdown' }
+        );
+        await ctx.answerCbQuery('Notification postponed for 1 month');
+      } else {
+        await ctx.answerCbQuery('Error processing your request');
+      }
+    });
+
+    bot.action(/accept_(\d+)/, async ctx => {
+      if (!ctx.match) {
+        throw new Error('Something went wrong. Please try again later.');
+      }
+
+      const medicationId = parseInt(ctx.match[1]);
+      const result = await this.notificationService.handleAcceptNotification(medicationId);
+
+      if (result.success && result.medication) {
+        await ctx.editMessageText(
+          `✅ **Medication Removed**\n\n` +
+            `💊 ${result.medication.name}\n` +
+            `🗑️ *Medication has been removed from your list.*\n\n` +
+            `*No more notifications will be sent for this medication.*`,
+          { parse_mode: 'Markdown' }
+        );
+        await ctx.answerCbQuery('Medication removed successfully');
+      } else {
+        await ctx.answerCbQuery('Error processing your request');
       }
     });
   }

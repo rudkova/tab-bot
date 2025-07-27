@@ -9,8 +9,9 @@ export class NotificationCron {
    */
   start(): void {
     // Run every day at 20:00
-    cron.schedule('* * * * * *', async () => {
-      console.log('Running daily notification check...');
+    cron.schedule('10 * * * * *', async () => {
+      // cron.schedule('* * * * * *', async () => {
+      console.log('Running daily notifications');
       try {
         await this.notificationService.sendDueNotifications();
         console.log('Daily notification check completed');
@@ -19,6 +20,6 @@ export class NotificationCron {
       }
     });
 
-    console.log('Notification cron job scheduled for 20:00 daily');
+    console.log('Notification cron job scheduled');
   }
 }

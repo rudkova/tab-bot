@@ -1,5 +1,5 @@
 import type { PrismaClient, User } from '@prisma/client';
-import type { UserInfo } from '../models/user-info.model.ts';
+import type { TelegramUserInfo } from '../../../bot/types/user-info.model.ts';
 
 export class UserRepository {
   constructor(private readonly prismaClient: PrismaClient) {}
@@ -22,7 +22,7 @@ export class UserRepository {
    * @param userInfo The user data to create
    * @returns The created user
    */
-  async createUserEntity(userInfo: UserInfo): Promise<User> {
+  async createUserEntity(userInfo: TelegramUserInfo): Promise<User> {
     return this.prismaClient.user.create({
       data: {
         telegramId: userInfo.telegramId,

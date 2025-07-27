@@ -1,4 +1,4 @@
-export interface UserInfo {
+export interface TelegramUserInfo {
   telegramId: number;
   chatId: number;
   username?: string;

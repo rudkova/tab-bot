@@ -29,13 +29,14 @@ export class NotificationService {
   }
 
   async sendDueNotifications() {
-    const notifications = await this.notificationRepository.getTodayNotifications();
+    console.log('sendDueNotifications');
+    const notifications = await this.notificationRepository.getTodayNotificationsWithMedications();
     console.log('notifications', notifications);
-    this.botService.sendMessage(notifications);
+    await this.botService.sendExpirationMessages(notifications);
   }
 
   // todo from 6 to 2 months before expiration. now it works only for 6 months
-  // todo add the second param so the method work for creating next notifications
+  //  add the second param so the method work for creating next notifications
   /**
    * Calculate the initial notification date (from 6 to 2 months before expiration)
    */
@@ -49,5 +50,25 @@ export class NotificationService {
     }
 
     return notificationDate;
+  }
+
+  async handleSkipNotification(medicationId: number) {
+    console.log(`handleSkipNotification for ${medicationId}`);
+    return {
+      success: true,
+      medication: {
+        name: 'm1',
+      },
+    };
+  }
+
+  async handleAcceptNotification(medicationId: number) {
+    console.log(`handleAcceptNotification for ${medicationId}`);
+    return {
+      success: true,
+      medication: {
+        name: 'm1',
+      },
+    };
   }
 }

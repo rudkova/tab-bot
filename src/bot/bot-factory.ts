@@ -34,6 +34,7 @@ export async function createBot(): Promise<Telegraf> {
   const conversationStateService = new ConversationStateService(store);
 
   const router = new BotRouterService(
+    botService,
     userService,
     conversationStateService,
     medicationService,
