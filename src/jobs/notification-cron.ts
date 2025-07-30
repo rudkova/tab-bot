@@ -9,8 +9,7 @@ export class NotificationCron {
    */
   start(): void {
     // Run every day at 20:00
-    cron.schedule('10 * * * * *', async () => {
-      // cron.schedule('* * * * * *', async () => {
+    cron.schedule('0 20 * * *', async () => {
       console.log('Running daily notifications');
       try {
         await this.notificationService.sendDueNotifications();
