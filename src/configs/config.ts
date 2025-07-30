@@ -1,7 +1,5 @@
 const NODE_ENV = process.env.NODE_ENV || 'local';
 
-console.log(`Environment: ${NODE_ENV}`);
-
 const getEnvVar = (name: string, isRequired = false, defaultValue = ''): string => {
   const value = process.env[name];
 
