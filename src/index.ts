@@ -2,14 +2,7 @@ import { createBot } from './bot/bot-factory.ts';
 
 const bot = await createBot();
 
-bot
-  .launch()
-  .then(() => {
-    console.log('Bot started successfully');
-  })
-  .catch(err => {
-    console.error('Error starting bot:', err);
-  });
+bot.launch();
 
 // Enable graceful stop
 process.once('SIGINT', () => bot.stop('SIGINT'));
