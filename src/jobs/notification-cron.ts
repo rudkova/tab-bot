@@ -4,12 +4,13 @@ import type { NotificationService } from '../features/notification/services/noti
 export class NotificationCron {
   constructor(private readonly notificationService: NotificationService) {}
 
+  private readonly pattern = '0 20 * * *';
   /**
    * Start the daily notification cron job
    */
   start(): void {
     // Run every day at 20:00
-    cron.schedule('0 20 * * *', async () => {
+    cron.schedule(this.pattern, async () => {
       console.log('Running daily notifications');
       try {
         await this.notificationService.sendDueNotifications();
