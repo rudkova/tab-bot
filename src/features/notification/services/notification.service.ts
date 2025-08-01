@@ -1,6 +1,6 @@
 import { NotificationRepository } from './notification.repository.ts';
-import { startOfDay } from 'date-fns';
 import type { BotService } from '../../../bot/bot.service.ts';
+import { getStartOfDay } from '../../../shared/utils/date.util.ts';
 
 export class NotificationService {
   constructor(
@@ -17,7 +17,7 @@ export class NotificationService {
     chatId: number
   ): Promise<void> {
     // const notificationDate = this.calculateNotificationDate(expirationDate);
-    const notificationDate = startOfDay(new Date());
+    const notificationDate = getStartOfDay(); // TODO remove. use calculateNotificationDate
 
     if (notificationDate) {
       await this.notificationRepository.createNotification(notificationDate, medicationId, chatId);
