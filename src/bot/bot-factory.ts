@@ -1,8 +1,9 @@
+import { config } from '../configs/config.ts';
+import prisma from '../shared/database/db.ts';
+import logger from '../shared/logger/logger.ts';
 import { Telegraf } from 'telegraf';
 import { UserService } from '../features/user/services/user.service.ts';
 import { BotRouterService } from './bot-router.service.ts';
-import { config } from '../configs/config.ts';
-import prisma from '../shared/database/db.ts';
 import { ConversationStateService } from '../shared/conversation-state/conversation-state.service.ts';
 import { MedicationService } from '../features/medication/services/medication.service.ts';
 import { MedicationValidator } from '../features/medication/validators/medication.validator.ts';
@@ -15,6 +16,7 @@ import { NotificationRepository } from '../features/notification/services/notifi
 import { BotService } from './bot.service.ts';
 
 export async function createBot(): Promise<Telegraf> {
+  logger.info('Try to create bot');
   const bot = new Telegraf(config.bot.token);
 
   // Create repositories
@@ -43,6 +45,8 @@ export async function createBot(): Promise<Telegraf> {
   );
 
   await router.setupCommands(bot);
+
+  logger.info('Bot is created');
 
   notificationCron.start();
 

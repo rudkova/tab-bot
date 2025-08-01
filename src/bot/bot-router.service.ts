@@ -11,6 +11,7 @@ import type { TextMessageContext } from './types/context.type.ts';
 import type { MedicationValidator } from '../features/medication/validators/medication.validator.ts';
 import type { NotificationService } from '../features/notification/services/notification.service.ts';
 import type { BotService } from './bot.service.ts';
+import logger from '../shared/logger/logger.ts';
 
 export class BotRouterService {
   private readonly commands = [
@@ -41,6 +42,7 @@ export class BotRouterService {
    * @param bot The Telegraf bot instance
    */
   async setupCommands(bot: Telegraf): Promise<void> {
+    logger.info('Bot setup commands');
     await bot.telegram.setMyCommands(this.commands);
     await this.setupNotificationHandlers(bot);
 

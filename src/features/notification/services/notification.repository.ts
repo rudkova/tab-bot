@@ -35,10 +35,9 @@ export class NotificationRepository {
       },
     });
 
-    const map = notifications.map(notification => ({
+    return notifications.map(notification => ({
       ...notification,
       chatId: Number(notification.chatId),
     }));
-    return map;
   }
 }

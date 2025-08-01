@@ -2,6 +2,7 @@ import { Context, Telegram } from 'telegraf';
 import type { TelegramUserInfo } from './types/user-info.model.ts';
 import type { NotificationWithMedication } from '../features/notification/types/NotificationWithMedication.ts';
 import { format } from 'date-fns';
+import logger from '../shared/logger/logger.ts';
 
 export class BotService {
   constructor(private readonly bot: Telegram) {}
@@ -12,13 +13,17 @@ export class BotService {
    * @returns User information
    */
   getTelegramUserInfo(ctx: Context): TelegramUserInfo {
-    if (!ctx.from) {
+    logger.info(`Try to get telegram user info, ${JSON.stringify(ctx.from, null, 2)}`);
+
+    if (ctx.from == null) {
+      logger.error(`No user information in context. ${JSON.stringify(ctx, null, 2)}`);
       throw new Error(`No user information in context. ${JSON.stringify(ctx, null, 2)}`);
     }
 
     const chatId = ctx.chat?.id;
 
-    if (chatId === undefined) {
+    if (chatId == null) {
+      logger.error(`No chatId for user: ${ctx.from.id}`);
       throw new Error(`No chatId for user: ${ctx.from.id}`);
     }
 
@@ -31,7 +36,6 @@ export class BotService {
   }
 
   async sendExpirationMessages(notifications: NotificationWithMedication[]) {
-    console.log('sendExpirationMessages');
     for (const { chatId, medication } of notifications) {
       const keyboard = {
         inline_keyboard: [

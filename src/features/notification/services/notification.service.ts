@@ -1,6 +1,8 @@
 import { NotificationRepository } from './notification.repository.ts';
 import type { BotService } from '../../../bot/bot.service.ts';
 import { getStartOfDay } from '../../../shared/utils/date.util.ts';
+import logger from '../../../shared/logger/logger.ts';
+import type { NotificationWithMedication } from '../types/NotificationWithMedication.ts';
 
 export class NotificationService {
   constructor(
@@ -19,20 +21,41 @@ export class NotificationService {
     // const notificationDate = this.calculateNotificationDate(expirationDate);
     const notificationDate = getStartOfDay(); // TODO remove. use calculateNotificationDate
 
-    if (notificationDate) {
-      await this.notificationRepository.createNotification(notificationDate, medicationId, chatId);
+    if (notificationDate === null) {
+      throw new Error(`Fail to create notification date by expirationDate: ${expirationDate}`);
+    }
 
-      console.log(`Scheduled notification for medication ${medicationId} at ${notificationDate}`);
-    } else {
-      console.log(`Medication ${medicationId} expires too soon, no notification scheduled`);
+    try {
+      await this.notificationRepository.createNotification(notificationDate, medicationId, chatId);
+      logger.info(
+        `Notification created. date:${notificationDate}, chatId:${chatId}, medicationId:${medicationId}, chatId:${chatId}.`
+      );
+    } catch (e) {
+      logger.error(
+        `Notification creation has failed. date:${notificationDate}, chatId:${chatId}, medicationId:${medicationId}, chatId:${chatId}.\nError: ${e}`
+      );
     }
   }
 
-  async sendDueNotifications() {
-    console.log('sendDueNotifications');
-    const notifications = await this.notificationRepository.getTodayNotificationsWithMedications();
-    console.log('notifications', notifications);
-    await this.botService.sendExpirationMessages(notifications);
+  async getTodayNotificationsWithMedications(): Promise<NotificationWithMedication[]> {
+    try {
+      const notifications =
+        await this.notificationRepository.getTodayNotificationsWithMedications();
+      logger.info(`Todays notifications: ${JSON.stringify(notifications, null, 2)}`);
+      return notifications;
+    } catch (e) {
+      logger.error('Failed to fetch today notifications', e);
+      throw e;
+    }
+  }
+
+  async sendDueNotifications(): Promise<void> {
+    try {
+      const notifications = await this.getTodayNotificationsWithMedications();
+      await this.botService.sendExpirationMessages(notifications);
+    } catch (e) {
+      logger.error('Failed to send notifications today', e);
+    }
   }
 
   // todo from 6 to 2 months before expiration. now it works only for 6 months
@@ -52,6 +75,7 @@ export class NotificationService {
     return notificationDate;
   }
 
+  // todo
   async handleSkipNotification(medicationId: number) {
     console.log(`handleSkipNotification for ${medicationId}`);
     return {
@@ -62,6 +86,7 @@ export class NotificationService {
     };
   }
 
+  // todo
   async handleAcceptNotification(medicationId: number) {
     console.log(`handleAcceptNotification for ${medicationId}`);
     return {

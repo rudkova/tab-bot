@@ -1,3 +1,4 @@
+import logger from '../shared/logger/logger.ts';
 import cron from 'node-cron';
 import type { NotificationService } from '../features/notification/services/notification.service.ts';
 
@@ -9,17 +10,18 @@ export class NotificationCron {
    * Start the daily notification cron job
    */
   start(): void {
-    // Run every day at 20:00
     cron.schedule(this.pattern, async () => {
-      console.log('Running daily notifications');
+      logger.info('Cron Job. Started');
       try {
         await this.notificationService.sendDueNotifications();
+        logger.info('Cron Job. Finished');
         console.log('Daily notification check completed');
       } catch (error) {
+        logger.error(`Error. Cron Job.\n ${error}`);
         console.error('Error in daily notification check:', error);
       }
     });
 
-    console.log('Notification cron job scheduled');
+    logger.info(`Notification cron job scheduled with pattern ${this.pattern}`);
   }
 }
