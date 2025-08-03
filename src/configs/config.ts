@@ -20,6 +20,7 @@ export const config = {
     env: NODE_ENV,
     dateFormat: 'yyyy-MM-dd',
     defaultTZ: 'America/New_York',
+    logLevel: getEnvVar('LOG_LEVEL', false, 'info'),
   },
 
   database: {

@@ -30,8 +30,12 @@ if (isProduction) {
   );
 }
 
+winston.addColors({
+  debug: 'cyan',
+});
+
 const logger = createLogger({
-  level: 'info',
+  level: config.app.logLevel,
   format: format.json(),
   transports,
 });

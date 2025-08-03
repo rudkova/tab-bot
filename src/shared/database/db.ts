@@ -11,7 +11,7 @@ export default prisma;
 const shutdown = async () => {
   console.log('Disconnecting Prisma...');
   await prisma.$disconnect();
-  process.exit(0); // Add this to ensure process dies
+  process.exit(0);
 };
 
 process.on('SIGTERM', shutdown); // For Node.js --watch
