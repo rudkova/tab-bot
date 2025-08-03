@@ -13,7 +13,7 @@ export class BotService {
    * @returns User information
    */
   getTelegramUserInfo(ctx: Context): TelegramUserInfo {
-    logger.info(`Try to get telegram user info, ${JSON.stringify(ctx.from, null, 2)}`);
+    logger.debug(`Try to get telegram user info, ${JSON.stringify(ctx.from, null, 2)}`);
 
     if (ctx.from == null) {
       logger.error(`No user information in context. ${JSON.stringify(ctx, null, 2)}`);

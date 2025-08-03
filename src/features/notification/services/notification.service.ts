@@ -1,7 +1,7 @@
+import logger from '../../../shared/logger/logger.ts';
 import { NotificationRepository } from './notification.repository.ts';
 import type { BotService } from '../../../bot/bot.service.ts';
-import { getStartOfDay } from '../../../shared/utils/date.util.ts';
-import logger from '../../../shared/logger/logger.ts';
+import { formatDate, getStartOfDay } from '../../../shared/utils/date.util.ts';
 import type { NotificationWithMedication } from '../types/NotificationWithMedication.ts';
 
 export class NotificationService {
@@ -27,13 +27,15 @@ export class NotificationService {
 
     try {
       await this.notificationRepository.createNotification(notificationDate, medicationId, chatId);
-      logger.info(
-        `Notification created. date:${notificationDate}, chatId:${chatId}, medicationId:${medicationId}, chatId:${chatId}.`
+      logger.debug(
+        `Notification created. date:${formatDate(expirationDate)}, chatId:${chatId}, medicationId:${medicationId}, chatId:${chatId}.`
       );
     } catch (e) {
       logger.error(
-        `Notification creation has failed. date:${notificationDate}, chatId:${chatId}, medicationId:${medicationId}, chatId:${chatId}.\nError: ${e}`
+        `Notification creation has failed. date: ${formatDate(notificationDate)}, chatId:${chatId}, medicationId:${medicationId}, chatId:${chatId}.\nError: ${e}`
       );
+
+      throw e;
     }
   }
 

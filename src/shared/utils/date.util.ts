@@ -30,4 +30,6 @@ const parseDate = (
 const getStartOfDay = (timeZone = 'UTC') => fromZonedTime(startOfDay(new Date()), timeZone);
 const getEndOfDay = (timeZone = 'UTC') => fromZonedTime(endOfDay(new Date()), timeZone);
 
-export { parseDate, getStartOfDay, getEndOfDay };
+const formatDate = (date: Date, formatPattern = 'yyyy-MM-dd') => format(date, formatPattern);
+
+export { parseDate, getStartOfDay, getEndOfDay, formatDate };

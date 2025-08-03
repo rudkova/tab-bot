@@ -1,8 +1,35 @@
+import logger from '../../../shared/logger/logger.ts';
 import { addMonths, isBefore } from 'date-fns';
 import { config } from '../../../configs/config.ts';
 import { parseDate } from '../../../shared/utils/date.util.ts';
+import type { MedicationDataType } from '../types/medicationDataType.ts';
 
 export class MedicationValidator {
+  validateMedicationData = (
+    name: string | undefined,
+    expirationDate: Date | undefined,
+    notes: string | undefined
+  ): MedicationDataType => {
+    if (name === undefined) {
+      logger.error(`Failed to validate medication data. Name is undefined`);
+      throw new Error('medicationName is required in conversation');
+    }
+    if (expirationDate === undefined) {
+      logger.error(`Failed to validate medication data. expirationDate is undefined`);
+      throw new Error('expirationDate is required in conversation');
+    }
+    if (notes === undefined) {
+      logger.error(`Failed to validate medication data. Notes is undefined`);
+      throw new Error('notes is required in conversation');
+    }
+
+    return {
+      name,
+      expirationDate,
+      notes,
+    };
+  };
+
   validateExpirationDate = (
     dateStr: string
   ): {

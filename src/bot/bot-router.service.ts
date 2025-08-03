@@ -108,18 +108,33 @@ export class BotRouterService {
         return ctx.reply(this.UNKNOWN_COMMAND);
       }
 
-      switch (conversation.state) {
-        case ConversationState.WAITING_FOR_MEDICATION_NAME:
-          return this.handleMedicationName(ctx, chatId, conversation);
-        case ConversationState.WAITING_FOR_EXPIRATION_DATE:
-          return await this.handleExpirationDate(ctx, chatId, conversation);
-        case ConversationState.WAITING_FOR_NOTES:
-          await this.handleNotes(ctx.message.text, chatId, conversation);
-          return this.handleMedicationSave(ctx, chatId);
-        default:
-          await this.conversationStateService.clearConversationState(chatId);
-          // todo log
-          return ctx.reply('Sorry, something went wrong. Please try again.');
+      try {
+        switch (conversation.state) {
+          case ConversationState.WAITING_FOR_MEDICATION_NAME:
+            return this.handleMedicationName(ctx, chatId, conversation);
+          case ConversationState.WAITING_FOR_EXPIRATION_DATE:
+            return await this.handleExpirationDate(ctx, chatId, conversation);
+          case ConversationState.WAITING_FOR_NOTES:
+            await this.handleNotes(ctx.message.text, chatId, conversation);
+            return this.handleMedicationSave(ctx, chatId);
+          default:
+            await this.conversationStateService.clearConversationState(chatId);
+            logger.error('Unknown conversation state', { conversation, chatId });
+            return ctx.reply('Sorry, something went wrong. Please try again.');
+        }
+      } catch (e) {
+        if (e instanceof Error) {
+          logger.error(`Failed to handle conversation.`, {
+            conversation,
+            chatId,
+            error: e.message,
+            stack: e.stack,
+          });
+        } else {
+          logger.error(`Failed to handle conversation ${conversation} for chatId=${chatId}.`, {
+            error: String(e),
+          });
+        }
       }
     });
   }
@@ -186,7 +201,7 @@ export class BotRouterService {
       }
 
       const notes = ctx.message.text;
-      const medicationData = this.medicationService.validateMedicationData(
+      const medicationData = this.medicationValidator.validateMedicationData(
         conversation.medicationName,
         conversation.expirationDate,
         notes
