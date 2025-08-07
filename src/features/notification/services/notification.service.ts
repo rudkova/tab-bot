@@ -26,15 +26,38 @@ export class NotificationService {
     }
 
     try {
-      await this.notificationRepository.createNotification(notificationDate, medicationId, chatId);
+      logger.info(
+        `Try to create notification with expirationDate: ${formatDate(expirationDate)}, medicationId ${medicationId}`
+      );
+      const { id } = await this.notificationRepository.createNotification(
+        notificationDate,
+        medicationId,
+        chatId
+      );
       logger.debug(
-        `Notification created. date:${formatDate(expirationDate)}, chatId:${chatId}, medicationId:${medicationId}, chatId:${chatId}.`
+        `Notification is created: id:${id}, date:${formatDate(expirationDate)}, chatId:${chatId}, medicationId:${medicationId}.`
       );
     } catch (e) {
-      logger.error(
-        `Notification creation has failed. date: ${formatDate(notificationDate)}, chatId:${chatId}, medicationId:${medicationId}, chatId:${chatId}.\nError: ${e}`
-      );
-
+      if (e instanceof Error) {
+        logger.error('Failed to create notification.', {
+          notificationData: {
+            medicationId,
+            expirationDate,
+            chatId,
+          },
+          error: e.message,
+          stack: e.stack,
+        });
+      } else {
+        logger.error('Failed to create notification.', {
+          notificationData: {
+            medicationId,
+            expirationDate,
+            chatId,
+          },
+          error: String(e),
+        });
+      }
       throw e;
     }
   }

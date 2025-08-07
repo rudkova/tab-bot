@@ -1,6 +1,7 @@
 import type { User } from '@prisma/client';
 import { UserRepository } from '../repositories/user.repository.ts';
 import type { TelegramUserInfo } from '../../../bot/types/user-info.model.ts';
+import logger from '../../../shared/logger/logger.ts';
 
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
@@ -11,16 +12,54 @@ export class UserService {
    * @returns The user (either existing or newly created)
    */
   async createOrGetUser(userInfo: TelegramUserInfo): Promise<User> {
-    const user = await this.userRepository.findUserByTelegramId(userInfo.telegramId);
+    const { telegramId, chatId, username, firstName } = userInfo;
+    const user = await this.userRepository.findUserByTelegramId(telegramId);
 
     if (user) {
       return user;
     }
 
-    return this.userRepository.createUserEntity(userInfo);
+    try {
+      logger.info(
+        `Try to create user. telegramId: ${telegramId}, chatId: ${chatId}, username: ${username}, firstName: ${firstName}`
+      );
+      const createdUser = await this.userRepository.createUserEntity(userInfo);
+      logger.debug(`User is created: id=${createdUser.id}`);
+      return createdUser;
+    } catch (e) {
+      if (e instanceof Error) {
+        logger.error('Failed to create user.', {
+          userInfo,
+          error: e.message,
+          stack: e.stack,
+        });
+      } else {
+        logger.error('Failed to create user.', {
+          userInfo,
+          error: String(e),
+        });
+      }
+      throw e;
+    }
   }
 
   async findUserByTelegramId(telegramId: number): Promise<User | null> {
-    return this.userRepository.findUserByTelegramId(telegramId);
+    try {
+      return this.userRepository.findUserByTelegramId(telegramId);
+    } catch (e) {
+      if (e instanceof Error) {
+        logger.error('Failed to find user.', {
+          telegramId,
+          error: e.message,
+          stack: e.stack,
+        });
+      } else {
+        logger.error('Failed to find user.', {
+          telegramId,
+          error: String(e),
+        });
+      }
+      throw e;
+    }
   }
 }

@@ -9,7 +9,7 @@ export class NotificationRepository {
     sendDate: Date,
     medicationId: number,
     chatId: number
-  ): Promise<Notification | null> {
+  ): Promise<Notification> {
     return await this.prismaClient.notification.create({
       data: {
         sendDate,

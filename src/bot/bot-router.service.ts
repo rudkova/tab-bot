@@ -192,6 +192,18 @@ export class BotRouterService {
       return ctx.reply(this.UNKNOWN_COMMAND);
     }
 
+    const notes = ctx.message.text;
+    const validationResult = this.medicationValidator.validateMedicationData(
+      conversation.medicationName,
+      conversation.expirationDate,
+      notes
+    );
+
+    if (!validationResult.isValid) {
+      logger.error(`${validationResult.error} (chatId: ${chatId})`);
+      return ctx.reply(validationResult.error);
+    }
+
     try {
       const { telegramId } = this.botService.getTelegramUserInfo(ctx);
       const user = await this.userService.findUserByTelegramId(telegramId);
@@ -200,13 +212,7 @@ export class BotRouterService {
         return ctx.reply('Sorry, something went wrong. Please try again.');
       }
 
-      const notes = ctx.message.text;
-      const medicationData = this.medicationValidator.validateMedicationData(
-        conversation.medicationName,
-        conversation.expirationDate,
-        notes
-      );
-
+      const { medicationData } = validationResult;
       const medication = await this.medicationService.createMedication(user.id, medicationData);
 
       await this.notificationService.createNotification(
@@ -215,13 +221,12 @@ export class BotRouterService {
         chatId
       );
 
-      await this.conversationStateService.clearConversationState(chatId);
-
       return ctx.reply(`Medication "${medication.name}" has been added successfully!`); // todo add text: next remind will be
     } catch (error) {
-      console.error('Error saving medication:', error);
-      await this.conversationStateService.clearConversationState(chatId);
+      logger.error('Error saving medication:', error);
       return ctx.reply('Sorry, there was an error saving your medication. Please try again.');
+    } finally {
+      await this.conversationStateService.clearConversationState(chatId);
     }
   }
 
@@ -238,18 +243,16 @@ export class BotRouterService {
     chatId: number,
     conversation: ConversationData
   ) {
-    const { date, errorMessage } = this.medicationValidator.validateExpirationDate(
-      ctx.message.text
-    );
+    const validationResult = this.medicationValidator.validateExpirationDate(ctx.message.text);
 
-    if (errorMessage) {
-      return ctx.reply(errorMessage);
+    if (!validationResult.isValid) {
+      return ctx.reply(validationResult.error);
     }
 
     await this.conversationStateService.setConversationState(chatId, {
       ...conversation,
       state: ConversationState.WAITING_FOR_NOTES,
-      expirationDate: date,
+      expirationDate: validationResult.date,
     });
 
     return ctx.reply(

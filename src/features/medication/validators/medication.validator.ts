@@ -1,57 +1,60 @@
-import logger from '../../../shared/logger/logger.ts';
 import { addMonths, isBefore } from 'date-fns';
 import { config } from '../../../configs/config.ts';
 import { parseDate } from '../../../shared/utils/date.util.ts';
-import type { MedicationDataType } from '../types/medicationDataType.ts';
+import type { MedicationValidationResultType } from '../types/medicationValidationResult.type.ts';
+import type { ExpirationDateValidationResult } from '../types/expirationDateValidationResult.type.ts';
 
 export class MedicationValidator {
   validateMedicationData = (
     name: string | undefined,
     expirationDate: Date | undefined,
     notes: string | undefined
-  ): MedicationDataType => {
+  ): MedicationValidationResultType => {
     if (name === undefined) {
-      logger.error(`Failed to validate medication data. Name is undefined`);
-      throw new Error('medicationName is required in conversation');
+      return {
+        isValid: false,
+        error: 'Failed to validate medication data. Name should not be empty',
+      };
     }
     if (expirationDate === undefined) {
-      logger.error(`Failed to validate medication data. expirationDate is undefined`);
-      throw new Error('expirationDate is required in conversation');
+      return {
+        isValid: false,
+        error: 'Failed to validate medication data. Expiration Date should not be empty',
+      };
     }
     if (notes === undefined) {
-      logger.error(`Failed to validate medication data. Notes is undefined`);
-      throw new Error('notes is required in conversation');
+      return {
+        isValid: false,
+        error: 'Failed to validate medication data. Notes should not be empty',
+      };
     }
 
     return {
-      name,
-      expirationDate,
-      notes,
+      isValid: true,
+      medicationData: { name, expirationDate, notes },
     };
   };
 
-  validateExpirationDate = (
-    dateStr: string
-  ): {
-    date?: Date;
-    errorMessage?: string;
-  } => {
+  validateExpirationDate = (dateStr: string): ExpirationDateValidationResult => {
     const parsedDate = parseDate(dateStr);
 
     if (parsedDate === null) {
       return {
-        errorMessage: `Invalid date format. Please enter the date in ${config.app.dateFormat.toUpperCase()} format:`,
+        isValid: false,
+        error: `Invalid date format. Please enter the date in ${config.app.dateFormat.toUpperCase()} format:`,
       };
     }
 
     const twoMonthsFromNow = addMonths(new Date(), 2);
     if (isBefore(parsedDate, twoMonthsFromNow)) {
       return {
-        errorMessage: `Date must be at least two months from today. Please enter the date in ${config.app.dateFormat.toUpperCase()} format:`,
+        isValid: false,
+        error: `Date must be at least two months from today. Please enter the date in ${config.app.dateFormat.toUpperCase()} format:`,
       };
     }
 
     return {
+      isValid: true,
       date: parsedDate,
     };
   };
