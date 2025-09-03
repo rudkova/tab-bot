@@ -2,8 +2,9 @@ import type { User } from '@prisma/client';
 import { UserRepository } from '../repositories/user.repository.ts';
 import type { TelegramUserInfo } from '../../../bot/types/user-info.model.ts';
 import logger from '../../../shared/logger/logger.ts';
+import type { IUserService } from '../types/IUserService.ts';
 
-export class UserService {
+export class UserService implements IUserService {
   constructor(private readonly userRepository: UserRepository) {}
 
   /**

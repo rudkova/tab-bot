@@ -1,5 +1,4 @@
 import { Telegraf } from 'telegraf';
-import { UserService } from '../features/user/services/user.service.ts';
 import { message } from 'telegraf/filters';
 import { MedicationService } from '../features/medication/services/medication.service.ts';
 import type { ConversationStateService } from '../shared/conversation-state/conversation-state.service.ts';
@@ -12,6 +11,7 @@ import type { MedicationValidator } from '../features/medication/validators/medi
 import type { NotificationService } from '../features/notification/services/notification.service.ts';
 import type { BotService } from './bot.service.ts';
 import logger from '../shared/logger/logger.ts';
+import type { IUserService } from '../features/user/types/IUserService.ts';
 
 export class BotRouterService {
   private readonly commands = [
@@ -26,11 +26,10 @@ export class BotRouterService {
     'Available commands:\n' +
     `${this.commands.map(c => `/${c.command} - ${c.description}`).join('\n')}`;
   private readonly UNKNOWN_COMMAND = `Unknown command. ${this.HELP_DESCRIPTION}`;
-  private readonly BOT_IS_STARTED = `You have already started bot. ${this.HELP_DESCRIPTION}`;
 
   constructor(
     private readonly botService: BotService,
-    private readonly userService: UserService,
+    private readonly userService: IUserService,
     private readonly conversationStateService: ConversationStateService,
     private readonly medicationService: MedicationService,
     private readonly medicationValidator: MedicationValidator,
@@ -46,16 +45,7 @@ export class BotRouterService {
     await bot.telegram.setMyCommands(this.commands);
     await this.setupNotificationHandlers(bot);
 
-    bot.start(async ctx => {
-      const { telegramId } = this.botService.getTelegramUserInfo(ctx);
-      const user = await this.userService.findUserByTelegramId(telegramId);
-
-      if (user !== null) {
-        return ctx.reply(this.BOT_IS_STARTED);
-      }
-
-      return ctx.reply('Welcome to Tab-Bot! I can help you track your medicine expiration dates.');
-    });
+    bot.start(async ctx => this.botService.onStart(ctx));
 
     bot.help(ctx => {
       return ctx.reply(this.HELP_DESCRIPTION);

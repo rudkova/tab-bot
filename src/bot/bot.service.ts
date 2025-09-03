@@ -3,10 +3,37 @@ import type { TelegramUserInfo } from './types/user-info.model.ts';
 import type { NotificationWithMedication } from '../features/notification/types/NotificationWithMedication.ts';
 import { format } from 'date-fns';
 import logger from '../shared/logger/logger.ts';
+import type { IUserService } from '../features/user/types/IUserService.ts';
 
 export class BotService {
-  constructor(private readonly bot: Telegram) {}
+  constructor(
+    private readonly bot: Telegram,
+    private readonly userService: IUserService
+  ) {}
 
+  private readonly commands = [
+    { command: 'start', description: 'Start the bot' },
+    { command: 'help', description: 'Show help message' },
+    { command: 'add_medication', description: 'Add a new medication' },
+    { command: 'cancel_add_medication', description: 'Cancel adding a new medication' },
+    { command: 'contact_developer', description: 'Contact the developer' },
+  ];
+  private readonly HELP_DESCRIPTION =
+    'Available commands:\n' +
+    `${this.commands.map(c => `/${c.command} - ${c.description}`).join('\n')}`;
+
+  private readonly BOT_IS_STARTED_MESSAGE = `You have already started bot. ${this.HELP_DESCRIPTION}`;
+
+  async onStart(ctx: Context): Promise<ReturnType<typeof ctx.reply>> {
+    const { telegramId } = this.getTelegramUserInfo(ctx);
+    const user = await this.userService.findUserByTelegramId(telegramId);
+
+    if (user !== null) {
+      return ctx.reply(this.BOT_IS_STARTED_MESSAGE);
+    }
+
+    return ctx.reply('Welcome to Tab-Bot! I can help you track your medicine expiration dates.');
+  }
   /**
    * Extracts user information from the Telegraf context
    * @param ctx The Telegraf context

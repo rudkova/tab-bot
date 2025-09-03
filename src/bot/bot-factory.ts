@@ -25,8 +25,8 @@ export async function createBot(): Promise<Telegraf> {
   const notificationRepository = new NotificationRepository(prisma);
 
   // Create services
-  const botService = new BotService(bot.telegram);
   const userService = new UserService(userRepository);
+  const botService = new BotService(bot.telegram, userService);
   const medicationService = new MedicationService(medicationRepository);
   const medicationValidator = new MedicationValidator();
   const notificationService = new NotificationService(notificationRepository, botService);

@@ -3,7 +3,7 @@
     "target": "ES2023",
     "module": "ESNext",
     "moduleResolution": "Node",
-    "types": ["node"],
+    "types": ["node", "jest"],
     "strict": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
