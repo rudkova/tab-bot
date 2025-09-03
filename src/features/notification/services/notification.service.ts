@@ -3,12 +3,18 @@ import { NotificationRepository } from './notification.repository.ts';
 import type { BotService } from '../../../bot/bot.service.ts';
 import { formatDate, getStartOfDay } from '../../../shared/utils/date.util.ts';
 import type { NotificationWithMedication } from '../types/NotificationWithMedication.ts';
+import { replaceWithoutProps } from '../../../shared/utils/string.util.ts';
 
 export class NotificationService {
+  private readonly sensitiveFields;
+
   constructor(
     private readonly notificationRepository: NotificationRepository,
     private readonly botService: BotService
-  ) {}
+  ) {
+    this.sensitiveFields = new Map<string, string>();
+    this.sensitiveFields.set('medication', '');
+  }
 
   /**
    * Set notification date for a medication
@@ -26,17 +32,21 @@ export class NotificationService {
     }
 
     try {
-      logger.info(
-        `Try to create notification with expirationDate: ${formatDate(expirationDate)}, medicationId ${medicationId}`
-      );
+      logger.info('Try to create notification.', {
+        expirationDate: formatDate(expirationDate),
+        medicationId,
+      });
       const { id } = await this.notificationRepository.createNotification(
         notificationDate,
         medicationId,
         chatId
       );
-      logger.debug(
-        `Notification is created: id:${id}, date:${formatDate(expirationDate)}, chatId:${chatId}, medicationId:${medicationId}.`
-      );
+      logger.debug('Notification is created', {
+        id,
+        date: formatDate(expirationDate),
+        chatId,
+        medicationId,
+      });
     } catch (e) {
       if (e instanceof Error) {
         logger.error('Failed to create notification.', {
@@ -66,10 +76,23 @@ export class NotificationService {
     try {
       const notifications =
         await this.notificationRepository.getTodayNotificationsWithMedications();
-      logger.info(`Todays notifications: ${JSON.stringify(notifications, null, 2)}`);
+
+      logger.info('Today notifications.', {
+        notifications: JSON.stringify(notifications, replaceWithoutProps(this.sensitiveFields)),
+      });
       return notifications;
     } catch (e) {
-      logger.error('Failed to fetch today notifications', e);
+      if (e instanceof Error) {
+        logger.error(`Failed to fetch today notifications.`, {
+          error: e.message,
+          stack: e.stack,
+        });
+      } else {
+        logger.error(`Failed to fetch today notifications.`, {
+          error: String(e),
+        });
+      }
+
       throw e;
     }
   }
@@ -79,7 +102,16 @@ export class NotificationService {
       const notifications = await this.getTodayNotificationsWithMedications();
       await this.botService.sendExpirationMessages(notifications);
     } catch (e) {
-      logger.error('Failed to send notifications today', e);
+      if (e instanceof Error) {
+        logger.error(`Failed to send notifications today.`, {
+          error: e.message,
+          stack: e.stack,
+        });
+      } else {
+        logger.error(`Failed to send notifications today.`, {
+          error: String(e),
+        });
+      }
     }
   }
 

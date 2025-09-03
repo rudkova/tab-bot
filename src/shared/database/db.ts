@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import logger from '../logger/logger.ts';
 
 // Create a singleton instance of PrismaClient
 const prisma = new PrismaClient({
@@ -9,7 +10,7 @@ export default prisma;
 
 // Handle graceful shutdown
 const shutdown = async () => {
-  console.log('Disconnecting Prisma...');
+  logger.info('Disconnecting Prisma...');
   await prisma.$disconnect();
   process.exit(0);
 };

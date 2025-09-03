@@ -14,11 +14,18 @@ export class NotificationCron {
       logger.info('Cron Job. Started');
       try {
         await this.notificationService.sendDueNotifications();
-        logger.info('Cron Job. Finished');
-        console.log('Daily notification check completed');
-      } catch (error) {
-        logger.error(`Error. Cron Job.\n ${error}`);
-        console.error('Error in daily notification check:', error);
+        logger.info('Cron Job. Daily notification check completed');
+      } catch (e) {
+        if (e instanceof Error) {
+          logger.error(`Cron Job. Error in daily notification send.`, {
+            error: e.message,
+            stack: e.stack,
+          });
+        } else {
+          logger.error(`Cron Job. Error in daily notification send.`, {
+            error: String(e),
+          });
+        }
       }
     });
 

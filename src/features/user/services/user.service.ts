@@ -20,11 +20,14 @@ export class UserService {
     }
 
     try {
-      logger.info(
-        `Try to create user. telegramId: ${telegramId}, chatId: ${chatId}, username: ${username}, firstName: ${firstName}`
-      );
+      logger.info('Try to create user.', {
+        telegramId,
+        chatId,
+        username,
+        firstName,
+      });
       const createdUser = await this.userRepository.createUserEntity(userInfo);
-      logger.debug(`User is created: id=${createdUser.id}`);
+      logger.debug('User is created.', { id: createdUser.id });
       return createdUser;
     } catch (e) {
       if (e instanceof Error) {

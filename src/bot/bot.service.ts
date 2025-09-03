@@ -13,23 +13,24 @@ export class BotService {
    * @returns User information
    */
   getTelegramUserInfo(ctx: Context): TelegramUserInfo {
-    logger.debug(`Try to get telegram user info, ${JSON.stringify(ctx.from, null, 2)}`);
+    logger.debug(`Try to get telegram user info`, { ctxFrom: JSON.stringify(ctx.from) });
 
     if (ctx.from == null) {
-      logger.error(`No user information in context. ${JSON.stringify(ctx, null, 2)}`);
-      throw new Error(`No user information in context. ${JSON.stringify(ctx, null, 2)}`);
+      logger.error(`No user information in context`, { ctx: String(ctx) });
+      throw new Error('No user information in context');
     }
 
     const chatId = ctx.chat?.id;
 
+    const telegramId = ctx.from.id;
     if (chatId == null) {
-      logger.error(`No chatId for user: ${ctx.from.id}`);
-      throw new Error(`No chatId for user: ${ctx.from.id}`);
+      logger.error(`No chatId for user`, { telegramId });
+      throw new Error(`No chatId for user: ${telegramId}`);
     }
 
     return {
+      telegramId,
       chatId: chatId,
-      telegramId: ctx.from.id,
       username: ctx.from.username,
       firstName: ctx.from.first_name,
     };

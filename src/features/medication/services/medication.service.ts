@@ -20,9 +20,9 @@ export class MedicationService {
     const { name, expirationDate, notes } = medicationData;
 
     try {
-      logger.info(
-        `Try to create medication ${name} with expirationDate: ${formatDate(expirationDate)} and notes ${notes}`
-      );
+      logger.info('Try to create medication.', {
+        medicationData: { name, expirationDate: formatDate(expirationDate), notes },
+      });
 
       const medication = await this.medicationRepository.createMedication(
         userId,
@@ -31,7 +31,9 @@ export class MedicationService {
         notes
       );
 
-      logger.debug(`Medication is created: id=${medication.id}`);
+      logger.debug(`Medication is created`, {
+        id: medication.id,
+      });
 
       return medication;
     } catch (e) {

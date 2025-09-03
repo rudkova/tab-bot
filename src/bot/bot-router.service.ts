@@ -42,7 +42,7 @@ export class BotRouterService {
    * @param bot The Telegraf bot instance
    */
   async setupCommands(bot: Telegraf): Promise<void> {
-    logger.info('Bot setup commands');
+    logger.info('Bot setup commands', { commands: this.commands });
     await bot.telegram.setMyCommands(this.commands);
     await this.setupNotificationHandlers(bot);
 
@@ -66,9 +66,7 @@ export class BotRouterService {
 
       try {
         const user = await this.userService.createOrGetUser(userInfo);
-        console.log(
-          `User created or found. telegramId=${user.telegramId}, chatId=${user.chatId}, username=${user.username}`
-        );
+        logger.debug(`User created or found.`, { id: user.id });
 
         await this.conversationStateService.setConversationState(userInfo.chatId, {
           state: ConversationState.WAITING_FOR_MEDICATION_NAME,
@@ -76,8 +74,19 @@ export class BotRouterService {
 
         return ctx.reply('Please enter the name of the medication:');
       } catch (e) {
-        // todo add error message
-        console.error('Could not create or get user', e);
+        if (e instanceof Error) {
+          logger.error(`Failed to create or get user.`, {
+            userInfo,
+            error: e.message,
+            stack: e.stack,
+          });
+        } else {
+          logger.error(`Failed to create or get user.`, {
+            userInfo,
+            error: String(e),
+          });
+        }
+
         return ctx.reply('Sorry, I could not identify you. Please try again later.');
       }
     });
@@ -200,8 +209,10 @@ export class BotRouterService {
     );
 
     if (!validationResult.isValid) {
-      logger.error(`${validationResult.error} (chatId: ${chatId})`);
-      return ctx.reply(validationResult.error);
+      logger.error(`${validationResult.error} (chatId: ${chatId})`, {
+        error: validationResult.error,
+      });
+      return ctx.reply(`validationResult.error\nPlease try again.`);
     }
 
     try {
@@ -223,7 +234,7 @@ export class BotRouterService {
 
       return ctx.reply(`Medication "${medication.name}" has been added successfully!`); // todo add text: next remind will be
     } catch (error) {
-      logger.error('Error saving medication:', error);
+      logger.error('Error saving medication:', { error });
       return ctx.reply('Sorry, there was an error saving your medication. Please try again.');
     } finally {
       await this.conversationStateService.clearConversationState(chatId);
