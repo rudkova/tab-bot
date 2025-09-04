@@ -1,7 +1,7 @@
 import { type Context, Telegraf } from 'telegraf';
 import { BotService } from './bot.service';
 import type { Message } from 'telegraf/typings/core/types/typegram';
-import type { IUserService } from '../features/user/types/IUserService.ts';
+import type { IUserService } from '../features/user/types/userService.interface.ts';
 import type { User } from '@prisma/client';
 
 jest.mock('../configs/config.ts', () => ({

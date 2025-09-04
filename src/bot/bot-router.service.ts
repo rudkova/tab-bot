@@ -11,7 +11,7 @@ import type { MedicationValidator } from '../features/medication/validators/medi
 import type { NotificationService } from '../features/notification/services/notification.service.ts';
 import type { BotService } from './bot.service.ts';
 import logger from '../shared/logger/logger.ts';
-import type { IUserService } from '../features/user/types/IUserService.ts';
+import type { IUserService } from '../features/user/types/userService.interface.ts';
 
 export class BotRouterService {
   private readonly commands = [
