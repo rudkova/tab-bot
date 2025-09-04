@@ -45,11 +45,9 @@ export class BotRouterService {
     await bot.telegram.setMyCommands(this.commands);
     await this.setupNotificationHandlers(bot);
 
-    bot.start(async ctx => this.botService.onStart(ctx));
+    bot.start(ctx => this.botService.onStart(ctx));
 
-    bot.help(ctx => {
-      return ctx.reply(this.HELP_DESCRIPTION);
-    });
+    bot.help(ctx => this.botService.onHelp(ctx));
 
     bot.command('add_medication', async ctx => {
       const userInfo = this.botService.getTelegramUserInfo(ctx);

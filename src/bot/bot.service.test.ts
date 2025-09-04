@@ -67,6 +67,13 @@ describe('BotService', () => {
       expect(result.text).toContain('You have already started bot');
     });
   });
+
+  describe('onHelp', () => {
+    it('should return a list of available commands', async () => {
+      const result = await botService.onHelp(ctx);
+      expect(result.text).toContain('Available commands:'); // todo add precise message when extract commands
+    });
+  });
 });
 
 const generateUser = (chatId: bigint): User => ({

@@ -34,6 +34,11 @@ export class BotService {
 
     return ctx.reply('Welcome to Tab-Bot! I can help you track your medicine expiration dates.');
   }
+
+  async onHelp(ctx: Context): Promise<ReturnType<typeof ctx.reply>> {
+    return ctx.reply(this.HELP_DESCRIPTION);
+  }
+
   /**
    * Extracts user information from the Telegraf context
    * @param ctx The Telegraf context
