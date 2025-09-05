@@ -1,6 +1,5 @@
 import logger from '../../../shared/logger/logger.ts';
 import { NotificationRepository } from './notification.repository.ts';
-import type { BotService } from '../../../bot/bot.service.ts';
 import { formatDate, getStartOfDay } from '../../../shared/utils/date.util.ts';
 import type { NotificationWithMedication } from '../types/NotificationWithMedication.ts';
 import { replaceWithoutProps } from '../../../shared/utils/string.util.ts';
@@ -8,10 +7,7 @@ import { replaceWithoutProps } from '../../../shared/utils/string.util.ts';
 export class NotificationService {
   private readonly sensitiveFields;
 
-  constructor(
-    private readonly notificationRepository: NotificationRepository,
-    private readonly botService: BotService
-  ) {
+  constructor(private readonly notificationRepository: NotificationRepository) {
     this.sensitiveFields = new Map<string, string>();
     this.sensitiveFields.set('medication', '');
   }
@@ -97,24 +93,6 @@ export class NotificationService {
     }
   }
 
-  async sendDueNotifications(): Promise<void> {
-    try {
-      const notifications = await this.getTodayNotificationsWithMedications();
-      await this.botService.sendExpirationMessages(notifications);
-    } catch (e) {
-      if (e instanceof Error) {
-        logger.error(`Failed to send notifications today.`, {
-          error: e.message,
-          stack: e.stack,
-        });
-      } else {
-        logger.error(`Failed to send notifications today.`, {
-          error: String(e),
-        });
-      }
-    }
-  }
-
   // todo from 6 to 2 months before expiration. now it works only for 6 months
   //  add the second param so the method work for creating next notifications
   /**
@@ -135,6 +113,7 @@ export class NotificationService {
   // todo
   async handleSkipNotification(medicationId: number) {
     console.log(`handleSkipNotification for ${medicationId}`);
+    // TODO update notification date
     return {
       success: true,
       medication: {
@@ -146,6 +125,7 @@ export class NotificationService {
   // todo
   async handleAcceptNotification(medicationId: number) {
     console.log(`handleAcceptNotification for ${medicationId}`);
+    // todo remove notification and medication
     return {
       success: true,
       medication: {

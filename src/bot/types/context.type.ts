@@ -5,3 +5,7 @@ export type TextMessageContext = NarrowedContext<
   Context<Update>,
   Update.MessageUpdate<Message.TextMessage>
 >;
+
+export type ActionContext = NarrowedContext<Context, Update.CallbackQueryUpdate> & {
+  match: RegExpMatchArray;
+};

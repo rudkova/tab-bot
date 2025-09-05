@@ -29,20 +29,21 @@ export async function createBot(): Promise<Telegraf> {
   const conversationStateService = new ConversationStateService(store);
 
   const userService = new UserService(userRepository);
-  const botService = new BotService(bot.telegram, userService, conversationStateService);
   const medicationService = new MedicationService(medicationRepository);
   const medicationValidator = new MedicationValidator();
-  const notificationService = new NotificationService(notificationRepository, botService);
-  const notificationCron = new NotificationCron(notificationService);
+  const notificationService = new NotificationService(notificationRepository);
 
-  const router = new BotRouterService(
-    botService,
+  const botService = new BotService(
+    bot.telegram,
     userService,
     conversationStateService,
     medicationService,
     medicationValidator,
     notificationService
   );
+
+  const notificationCron = new NotificationCron(botService);
+  const router = new BotRouterService(botService);
 
   await router.setupCommands(bot);
 

@@ -1,9 +1,9 @@
 import logger from '../shared/logger/logger.ts';
 import cron from 'node-cron';
-import type { NotificationService } from '../features/notification/services/notification.service.ts';
+import type { BotService } from '../bot/bot.service.ts';
 
 export class NotificationCron {
-  constructor(private readonly notificationService: NotificationService) {}
+  constructor(private readonly botService: BotService) {}
 
   private readonly pattern = '0 20 * * *';
   /**
@@ -13,7 +13,7 @@ export class NotificationCron {
     cron.schedule(this.pattern, async () => {
       logger.info('Cron Job. Started');
       try {
-        await this.notificationService.sendDueNotifications();
+        await this.botService.sendDueNotifications();
         logger.info('Cron Job. Daily notification check completed');
       } catch (e) {
         if (e instanceof Error) {

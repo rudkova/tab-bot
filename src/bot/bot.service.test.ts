@@ -1,9 +1,12 @@
 import { type Context, Telegraf } from 'telegraf';
 import { BotService } from './bot.service';
 import type { Message } from 'telegraf/typings/core/types/typegram';
-import type { IUserService } from '../features/user/types/userService.interface.ts';
+import type { IUserService } from '../features/user/types/userService.interface';
 import type { User } from '@prisma/client';
-import type { IConversationStateService } from '../shared/conversation-state/conversation-state.service.interface.ts';
+import type { IConversationStateService } from '../shared/conversation-state/conversation-state.service.interface';
+import type { MedicationService } from '../features/medication/services/medication.service';
+import type { MedicationValidator } from '../features/medication/validators/medication.validator';
+import type { NotificationService } from '../features/notification/services/notification.service';
 
 jest.mock('../configs/config.ts', () => ({
   config: {
@@ -23,6 +26,9 @@ describe('BotService', () => {
   let bot: Telegraf;
   let userService: jest.Mocked<IUserService>;
   let conversationStateService: jest.Mocked<IConversationStateService>;
+  let medicationService: jest.Mocked<MedicationService>;
+  let medicationValidator: jest.Mocked<MedicationValidator>;
+  let notificationService: jest.Mocked<NotificationService>;
   let botService: BotService;
   let ctx: Context;
 
@@ -37,7 +43,31 @@ describe('BotService', () => {
       setConversationState: jest.fn(),
       clearConversationState: jest.fn(),
     };
-    botService = new BotService(bot.telegram, userService, conversationStateService);
+
+    medicationService = {
+      createMedication: jest.fn(),
+    } as unknown as jest.Mocked<MedicationService>;
+
+    medicationValidator = {
+      validateMedicationData: jest.fn(),
+      validateExpirationDate: jest.fn(),
+    } as unknown as jest.Mocked<MedicationValidator>;
+
+    notificationService = {
+      createNotification: jest.fn(),
+      getTodayNotificationsWithMedications: jest.fn(),
+      handleSkipNotification: jest.fn(),
+      handleAcceptNotification: jest.fn(),
+    } as unknown as jest.Mocked<NotificationService>;
+
+    botService = new BotService(
+      bot.telegram,
+      userService,
+      conversationStateService,
+      medicationService,
+      medicationValidator,
+      notificationService
+    );
 
     ctx = {
       chat: { id: CHAT_ID },
