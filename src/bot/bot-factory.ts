@@ -8,7 +8,7 @@ import { ConversationStateService } from '../shared/conversation-state/conversat
 import { MedicationService } from '../features/medication/services/medication.service.ts';
 import { MedicationValidator } from '../features/medication/validators/medication.validator.ts';
 import { UserRepository } from '../features/user/repositories/user.repository.ts';
-import { InMemoryConversationStateStore } from '../shared/conversation-state/in-memory-conversation-state-store.service.ts';
+import { InMemoryConversationStateStoreService } from '../shared/conversation-state/in-memory-conversation-state-store.service.ts';
 import { MedicationRepository } from '../features/medication/repositories/medication.repository.ts';
 import { NotificationService } from '../features/notification/services/notification.service.ts';
 import { NotificationCron } from '../jobs/notification-cron.ts';
@@ -25,15 +25,15 @@ export async function createBot(): Promise<Telegraf> {
   const notificationRepository = new NotificationRepository(prisma);
 
   // Create services
+  const store = new InMemoryConversationStateStoreService();
+  const conversationStateService = new ConversationStateService(store);
+
   const userService = new UserService(userRepository);
-  const botService = new BotService(bot.telegram, userService);
+  const botService = new BotService(bot.telegram, userService, conversationStateService);
   const medicationService = new MedicationService(medicationRepository);
   const medicationValidator = new MedicationValidator();
   const notificationService = new NotificationService(notificationRepository, botService);
   const notificationCron = new NotificationCron(notificationService);
-
-  const store = new InMemoryConversationStateStore();
-  const conversationStateService = new ConversationStateService(store);
 
   const router = new BotRouterService(
     botService,

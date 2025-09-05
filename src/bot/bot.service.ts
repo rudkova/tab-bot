@@ -3,12 +3,15 @@ import type { TelegramUserInfo } from './types/user-info.model.ts';
 import type { NotificationWithMedication } from '../features/notification/types/NotificationWithMedication.ts';
 import { format } from 'date-fns';
 import logger from '../shared/logger/logger.ts';
-import type { IUserService } from '../features/user/types/IUserService.ts';
+import type { IUserService } from '../features/user/types/userService.interface.ts';
+import { ConversationState } from '../shared/conversation-state/conversation-state.types.ts';
+import type { IConversationStateService } from '../shared/conversation-state/conversation-state.service.interface.ts';
 
 export class BotService {
   constructor(
     private readonly bot: Telegram,
-    private readonly userService: IUserService
+    private readonly userService: IUserService,
+    private readonly conversationStateService: IConversationStateService
   ) {}
 
   private readonly commands = [
@@ -37,6 +40,36 @@ export class BotService {
 
   async onHelp(ctx: Context): Promise<ReturnType<typeof ctx.reply>> {
     return ctx.reply(this.HELP_DESCRIPTION);
+  }
+
+  async onAddMedication(ctx: Context): Promise<ReturnType<typeof ctx.reply>> {
+    const userInfo = this.getTelegramUserInfo(ctx);
+
+    try {
+      const user = await this.userService.createOrGetUser(userInfo);
+      logger.debug(`User created or found.`, { id: user.id });
+
+      await this.conversationStateService.setConversationState(userInfo.chatId, {
+        state: ConversationState.WAITING_FOR_MEDICATION_NAME,
+      });
+
+      return ctx.reply('Please enter the name of the medication:');
+    } catch (e) {
+      if (e instanceof Error) {
+        logger.error(`Failed to create or get user.`, {
+          userInfo,
+          error: e.message,
+          stack: e.stack,
+        });
+      } else {
+        logger.error(`Failed to create or get user.`, {
+          userInfo,
+          error: String(e),
+        });
+      }
+
+      return ctx.reply('Sorry, I could not identify you. Please try again later.');
+    }
   }
 
   /**

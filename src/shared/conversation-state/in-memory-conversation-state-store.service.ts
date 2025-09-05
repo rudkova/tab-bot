@@ -1,10 +1,8 @@
-import type {
-  ConversationData,
-  ConversationStateStoreInterface,
-} from './conversation-state-store.interface.ts';
+import type { ConversationData } from './conversation-state.types.ts';
 import type { MakeOptional } from '../types/utils.types.ts';
+import type { IConversationStateStoreService } from './conversation-state.store.interface.ts';
 
-export class InMemoryConversationStateStore implements ConversationStateStoreInterface {
+export class InMemoryConversationStateStoreService implements IConversationStateStoreService {
   private conversations = new Map<number, ConversationData>();
 
   async get(chatId: number) {

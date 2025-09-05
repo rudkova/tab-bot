@@ -5,7 +5,7 @@ import type { ConversationStateService } from '../shared/conversation-state/conv
 import {
   type ConversationData,
   ConversationState,
-} from '../shared/conversation-state/conversation-state-store.interface.ts';
+} from '../shared/conversation-state/conversation-state.types.ts';
 import type { TextMessageContext } from './types/context.type.ts';
 import type { MedicationValidator } from '../features/medication/validators/medication.validator.ts';
 import type { NotificationService } from '../features/notification/services/notification.service.ts';
@@ -49,35 +49,7 @@ export class BotRouterService {
 
     bot.help(ctx => this.botService.onHelp(ctx));
 
-    bot.command('add_medication', async ctx => {
-      const userInfo = this.botService.getTelegramUserInfo(ctx);
-
-      try {
-        const user = await this.userService.createOrGetUser(userInfo);
-        logger.debug(`User created or found.`, { id: user.id });
-
-        await this.conversationStateService.setConversationState(userInfo.chatId, {
-          state: ConversationState.WAITING_FOR_MEDICATION_NAME,
-        });
-
-        return ctx.reply('Please enter the name of the medication:');
-      } catch (e) {
-        if (e instanceof Error) {
-          logger.error(`Failed to create or get user.`, {
-            userInfo,
-            error: e.message,
-            stack: e.stack,
-          });
-        } else {
-          logger.error(`Failed to create or get user.`, {
-            userInfo,
-            error: String(e),
-          });
-        }
-
-        return ctx.reply('Sorry, I could not identify you. Please try again later.');
-      }
-    });
+    bot.command('add_medication', async ctx => this.botService.onAddMedication(ctx));
 
     bot.command('cancel_add_medication', async ctx => {
       const chatId = ctx.chat.id;

@@ -1,11 +1,10 @@
 import type { MakeOptional } from '../types/utils.types.ts';
-import type {
-  ConversationData,
-  ConversationStateStoreInterface,
-} from './conversation-state-store.interface.ts';
+import type { ConversationData } from './conversation-state.types.ts';
+import type { IConversationStateStoreService } from './conversation-state.store.interface.ts';
+import type { IConversationStateService } from './conversation-state.service.interface.ts';
 
-export class ConversationStateService {
-  constructor(private readonly store: ConversationStateStoreInterface) {}
+export class ConversationStateService implements IConversationStateService {
+  constructor(private readonly store: IConversationStateStoreService) {}
 
   setConversationState(
     chatId: number,

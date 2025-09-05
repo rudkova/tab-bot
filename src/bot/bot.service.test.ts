@@ -3,6 +3,7 @@ import { BotService } from './bot.service';
 import type { Message } from 'telegraf/typings/core/types/typegram';
 import type { IUserService } from '../features/user/types/userService.interface.ts';
 import type { User } from '@prisma/client';
+import type { IConversationStateService } from '../shared/conversation-state/conversation-state.service.interface.ts';
 
 jest.mock('../configs/config.ts', () => ({
   config: {
@@ -21,6 +22,7 @@ describe('BotService', () => {
   const CHAT_ID = 123;
   let bot: Telegraf;
   let userService: jest.Mocked<IUserService>;
+  let conversationStateService: jest.Mocked<IConversationStateService>;
   let botService: BotService;
   let ctx: Context;
 
@@ -30,7 +32,12 @@ describe('BotService', () => {
       findUserByTelegramId: jest.fn(),
       createOrGetUser: jest.fn(),
     };
-    botService = new BotService(bot.telegram, userService);
+    conversationStateService = {
+      getConversationState: jest.fn(),
+      setConversationState: jest.fn(),
+      clearConversationState: jest.fn(),
+    };
+    botService = new BotService(bot.telegram, userService, conversationStateService);
 
     ctx = {
       chat: { id: CHAT_ID },
@@ -72,6 +79,16 @@ describe('BotService', () => {
     it('should return a list of available commands', async () => {
       const result = await botService.onHelp(ctx);
       expect(result.text).toContain('Available commands:'); // todo add precise message when extract commands
+    });
+  });
+
+  describe('onAddMedication', () => {
+    it('should return a "Please enter the name of the medication" message', async () => {
+      userService.createOrGetUser.mockResolvedValue(generateUser(BigInt(CHAT_ID)));
+
+      const result = await botService.onAddMedication(ctx);
+
+      expect(result.text).toBe('Please enter the name of the medication:');
     });
   });
 });
