@@ -51,17 +51,8 @@ export class BotRouterService {
 
     bot.command('add_medication', async ctx => this.botService.onAddMedication(ctx));
 
-    bot.command('cancel_add_medication', async ctx => {
-      const chatId = ctx.chat.id;
-      const conversationState = await this.conversationStateService.getConversationState(chatId);
+    bot.command('cancel_add_medication', async ctx => this.botService.onCancelAddMedication(ctx));
 
-      if (conversationState) {
-        await this.conversationStateService.clearConversationState(chatId);
-        return ctx.reply('Medication addition cancelled. You can start again with /add_medication');
-      }
-
-      return ctx.reply('No active conversation to cancel.');
-    });
     // Write to developer command
     bot.command('contact_developer', ctx => {
       return ctx.reply(

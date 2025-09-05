@@ -42,6 +42,23 @@ export class BotService {
     return ctx.reply(this.HELP_DESCRIPTION);
   }
 
+  /**
+   * Handles the cancellation of adding a new medication
+   * @param ctx The Telegraf context
+   * @returns A promise that resolves when the operation is complete
+   */
+  async onCancelAddMedication(ctx: Context): Promise<ReturnType<typeof ctx.reply>> {
+    const { chatId } = this.getTelegramUserInfo(ctx);
+
+    try {
+      await this.conversationStateService.clearConversationState(chatId);
+      return ctx.reply('Adding medication has been cancelled.');
+    } catch (error) {
+      logger.error('Error cancelling medication addition:', { error });
+      return ctx.reply('Sorry, there was an error cancelling the operation. Please try again.');
+    }
+  }
+
   async onAddMedication(ctx: Context): Promise<ReturnType<typeof ctx.reply>> {
     const userInfo = this.getTelegramUserInfo(ctx);
 

@@ -91,6 +91,17 @@ describe('BotService', () => {
       expect(result.text).toBe('Please enter the name of the medication:');
     });
   });
+
+  describe('onCancelAddMedication', () => {
+    it('should clear conversation state and return a cancellation message', async () => {
+      conversationStateService.clearConversationState.mockResolvedValue(undefined);
+
+      const result = await botService.onCancelAddMedication(ctx);
+
+      // Verify the correct message is returned
+      expect(result.text).toBe('Adding medication has been cancelled.');
+    });
+  });
 });
 
 const generateUser = (chatId: bigint): User => ({
