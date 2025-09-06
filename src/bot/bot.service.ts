@@ -21,7 +21,7 @@ export class BotService {
     private readonly conversationStateService: IConversationStateService,
     private readonly medicationService: IMedicationService,
     private readonly medicationValidator: IMedicationValidator,
-    private readonly notificationService: INotificationService // todo fix circular dep
+    private readonly notificationService: INotificationService
   ) {}
 
   private readonly commands = [
