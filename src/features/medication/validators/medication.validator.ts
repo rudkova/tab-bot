@@ -3,8 +3,9 @@ import { config } from '../../../configs/config.ts';
 import { parseDate } from '../../../shared/utils/date.util.ts';
 import type { MedicationValidationResultType } from '../types/medicationValidationResult.type.ts';
 import type { ExpirationDateValidationResult } from '../types/expirationDateValidationResult.type.ts';
+import type { IMedicationValidator } from '../types/medication.validator.interface.ts';
 
-export class MedicationValidator {
+export class MedicationValidator implements IMedicationValidator {
   validateMedicationData = (
     name: string | undefined,
     expirationDate: Date | undefined,

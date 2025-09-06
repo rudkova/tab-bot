@@ -3,8 +3,9 @@ import type { Medication } from '@prisma/client';
 import { MedicationRepository } from '../repositories/medication.repository.ts';
 import type { MedicationDataType } from '../types/medicationDataType.ts';
 import { formatDate } from '../../../shared/utils/date.util.ts';
+import type { IMedicationService } from '../types/medication.service.interface.ts';
 
-export class MedicationService {
+export class MedicationService implements IMedicationService {
   constructor(private readonly medicationRepository: MedicationRepository) {}
 
   /**

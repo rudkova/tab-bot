@@ -10,18 +10,18 @@ import {
 } from '../shared/conversation-state/conversation-state.types.ts';
 import type { IConversationStateService } from '../shared/conversation-state/conversation-state.service.interface.ts';
 import type { ActionContext, TextMessageContext } from './types/context.type.ts';
-import type { MedicationService } from '../features/medication/services/medication.service.ts';
-import type { MedicationValidator } from '../features/medication/validators/medication.validator.ts';
-import type { NotificationService } from '../features/notification/services/notification.service.ts';
+import type { IMedicationService } from '../features/medication/types/medication.service.interface.ts';
+import type { IMedicationValidator } from '../features/medication/types/medication.validator.interface.ts';
+import type { INotificationService } from '../features/notification/types/notification.service.interface.ts';
 
 export class BotService {
   constructor(
     private readonly bot: Telegram,
     private readonly userService: IUserService,
     private readonly conversationStateService: IConversationStateService,
-    private readonly medicationService: MedicationService, // todo interface
-    private readonly medicationValidator: MedicationValidator, // todo interface
-    private readonly notificationService: NotificationService // todo fix circular dep
+    private readonly medicationService: IMedicationService,
+    private readonly medicationValidator: IMedicationValidator,
+    private readonly notificationService: INotificationService // todo fix circular dep
   ) {}
 
   private readonly commands = [
@@ -310,7 +310,7 @@ export class BotService {
     }
 
     const medicationId = parseInt(ctx.match[1]);
-    const result = await this.notificationService.handleSkipNotification(medicationId);
+    const result = await this.handleSkipNotification(medicationId);
 
     if (result.success && result.medication) {
       await ctx.editMessageText(
@@ -333,7 +333,7 @@ export class BotService {
     }
 
     const medicationId = parseInt(ctx.match[1]);
-    const result = await this.notificationService.handleAcceptNotification(medicationId);
+    const result = await this.handleAcceptNotification(medicationId);
 
     if (result.success && result.medication) {
       await ctx.editMessageText(
@@ -347,5 +347,29 @@ export class BotService {
     } else {
       await ctx.answerCbQuery('Error processing your request');
     }
+  }
+
+  // todo where to place this method? in botservice or notification service?
+  async handleSkipNotification(medicationId: number) {
+    console.log(`handleSkipNotification for ${medicationId}`);
+    // TODO update notification date
+    return {
+      success: true,
+      medication: {
+        name: 'm1',
+      },
+    };
+  }
+
+  // todo
+  async handleAcceptNotification(medicationId: number) {
+    console.log(`handleAcceptNotification for ${medicationId}`);
+    // todo remove notification and medication
+    return {
+      success: true,
+      medication: {
+        name: 'm1',
+      },
+    };
   }
 }

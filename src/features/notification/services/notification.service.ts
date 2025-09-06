@@ -3,8 +3,9 @@ import { NotificationRepository } from './notification.repository.ts';
 import { formatDate, getStartOfDay } from '../../../shared/utils/date.util.ts';
 import type { NotificationWithMedication } from '../types/NotificationWithMedication.ts';
 import { replaceWithoutProps } from '../../../shared/utils/string.util.ts';
+import type { INotificationService } from '../types/notification.service.interface.ts';
 
-export class NotificationService {
+export class NotificationService implements INotificationService {
   private readonly sensitiveFields;
 
   constructor(private readonly notificationRepository: NotificationRepository) {
@@ -108,29 +109,5 @@ export class NotificationService {
     }
 
     return notificationDate;
-  }
-
-  // todo
-  async handleSkipNotification(medicationId: number) {
-    console.log(`handleSkipNotification for ${medicationId}`);
-    // TODO update notification date
-    return {
-      success: true,
-      medication: {
-        name: 'm1',
-      },
-    };
-  }
-
-  // todo
-  async handleAcceptNotification(medicationId: number) {
-    console.log(`handleAcceptNotification for ${medicationId}`);
-    // todo remove notification and medication
-    return {
-      success: true,
-      medication: {
-        name: 'm1',
-      },
-    };
   }
 }

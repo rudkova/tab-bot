@@ -6,7 +6,9 @@ import type { User } from '@prisma/client';
 import type { IConversationStateService } from '../shared/conversation-state/conversation-state.service.interface';
 import type { MedicationService } from '../features/medication/services/medication.service';
 import type { MedicationValidator } from '../features/medication/validators/medication.validator';
-import type { NotificationService } from '../features/notification/services/notification.service';
+import type { IMedicationService } from '../features/medication/types/medication.service.interface.ts';
+import type { IMedicationValidator } from '../features/medication/types/medication.validator.interface.ts';
+import type { INotificationService } from '../features/notification/types/notification.service.interface.ts';
 
 jest.mock('../configs/config.ts', () => ({
   config: {
@@ -26,9 +28,9 @@ describe('BotService', () => {
   let bot: Telegraf;
   let userService: jest.Mocked<IUserService>;
   let conversationStateService: jest.Mocked<IConversationStateService>;
-  let medicationService: jest.Mocked<MedicationService>;
-  let medicationValidator: jest.Mocked<MedicationValidator>;
-  let notificationService: jest.Mocked<NotificationService>;
+  let medicationService: jest.Mocked<IMedicationService>;
+  let medicationValidator: jest.Mocked<IMedicationValidator>;
+  let notificationService: jest.Mocked<INotificationService>;
   let botService: BotService;
   let ctx: Context;
 
@@ -58,7 +60,7 @@ describe('BotService', () => {
       getTodayNotificationsWithMedications: jest.fn(),
       handleSkipNotification: jest.fn(),
       handleAcceptNotification: jest.fn(),
-    } as unknown as jest.Mocked<NotificationService>;
+    } as unknown as jest.Mocked<INotificationService>;
 
     botService = new BotService(
       bot.telegram,
