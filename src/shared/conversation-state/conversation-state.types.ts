@@ -7,8 +7,8 @@ export enum ConversationState {
 
 export interface ConversationData {
   state: ConversationState;
+  timestamp: number; // todo implement setting TS
   medicationName?: string;
   expirationDate?: Date;
   notes?: string;
-  timestamp: number;
 }

@@ -28,10 +28,10 @@ model Medication {
   id             Int            @id @default(autoincrement())
   userId         Int            @map("user_id")
   name           String
+  notes          String
   expirationDate DateTime       @map("expiration_date") @db.Timestamptz(0)
-  notes          String?
   createdAt      DateTime       @default(now()) @map("created_at") @db.Timestamptz(0)
-  updatedAt      DateTime?       @map("updated_at") @db.Timestamptz(0)
+  updatedAt      DateTime?      @map("updated_at") @db.Timestamptz(0)
   user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   notifications  Notification[]
 

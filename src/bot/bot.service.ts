@@ -169,16 +169,15 @@ export class BotService {
     try {
       switch (conversation.state) {
         case ConversationState.WAITING_FOR_MEDICATION_NAME:
-          return this.handleMedicationName(ctx, chatId, conversation);
+          return await this.handleMedicationName(ctx, chatId, conversation);
         case ConversationState.WAITING_FOR_EXPIRATION_DATE:
           return await this.handleExpirationDate(ctx, chatId, conversation);
         case ConversationState.WAITING_FOR_NOTES:
           await this.handleNotes(ctx.message.text, chatId, conversation);
-          return this.handleMedicationSave(ctx, chatId);
+          return await this.handleMedicationSave(ctx, chatId);
         default:
-          await this.conversationStateService.clearConversationState(chatId);
           logger.error('Unknown conversation state', { conversation, chatId });
-          return ctx.reply('Sorry, something went wrong. Please try again.');
+          throw new Error('Unknown conversation state');
       }
     } catch (e) {
       if (e instanceof Error) {
@@ -193,12 +192,19 @@ export class BotService {
           error: String(e),
         });
       }
+
+      await this.conversationStateService.clearConversationState(chatId); // todo cover with test
+      return ctx.reply('Sorry, something went wrong. Please try again.');
     }
   }
+
   private async handleMedicationSave(ctx: TextMessageContext, chatId: number) {
     const conversation = await this.conversationStateService.getConversationState(chatId);
     if (conversation === undefined) {
-      return ctx.reply(this.UNKNOWN_COMMAND);
+      logger.error('Could not find conversation state.', {
+        chatId,
+      });
+      throw new Error('Could not find conversation state.');
     }
 
     const notes = ctx.message.text;
@@ -209,17 +215,18 @@ export class BotService {
     );
 
     if (!validationResult.isValid) {
-      logger.error(`${validationResult.error} (chatId: ${chatId})`, {
+      logger.error(`${validationResult.error}`, {
+        chatId,
         error: validationResult.error,
       });
-      return ctx.reply(`validationResult.error\nPlease try again.`);
+      return ctx.reply(`${validationResult.error}`);
     }
 
     try {
       const { telegramId } = this.getTelegramUserInfo(ctx);
       const user = await this.userService.findUserByTelegramId(telegramId);
-      if (user === null) {
-        console.error(`Could not find user by telegram id: ${telegramId}`);
+      if (user == null) {
+        logger.error(`Could not find user by telegram id`, { telegramId });
         return ctx.reply('Sorry, something went wrong. Please try again.');
       }
 
