@@ -99,35 +99,6 @@ export class BotService {
     }
   }
 
-  /**
-   * Extracts user information from the Telegraf context
-   * @param ctx The Telegraf context
-   * @returns User information
-   */
-  getTelegramUserInfo(ctx: Context): TelegramUserInfo {
-    logger.debug(`Try to get telegram user info`, { ctxFrom: JSON.stringify(ctx.from) });
-
-    if (ctx.from == null) {
-      logger.error(`No user information in context`, { ctx: String(ctx) });
-      throw new Error('No user information in context');
-    }
-
-    const chatId = ctx.chat?.id;
-
-    const telegramId = ctx.from.id;
-    if (chatId == null) {
-      logger.error(`No chatId for user`, { telegramId });
-      throw new Error(`No chatId for user: ${telegramId}`);
-    }
-
-    return {
-      telegramId,
-      chatId: chatId,
-      username: ctx.from.username,
-      firstName: ctx.from.first_name,
-    };
-  }
-
   async sendExpirationMessages(notifications: NotificationWithMedication[]) {
     for (const { chatId, medication } of notifications) {
       const keyboard = {
@@ -196,6 +167,94 @@ export class BotService {
       await this.conversationStateService.clearConversationState(chatId); // todo cover with test
       return ctx.reply('Sorry, something went wrong. Please try again.');
     }
+  }
+
+  async sendDueNotifications(): Promise<void> {
+    try {
+      const notifications = await this.notificationService.getTodayNotificationsWithMedications();
+      await this.sendExpirationMessages(notifications);
+    } catch (e) {
+      if (e instanceof Error) {
+        logger.error(`Failed to send notifications today.`, {
+          error: e.message,
+          stack: e.stack,
+        });
+      } else {
+        logger.error(`Failed to send notifications today.`, {
+          error: String(e),
+        });
+      }
+    }
+  }
+
+  // todo
+  async onSkipNotification(ctx: ActionContext) {
+    if (!ctx.match) {
+      throw new Error('Something went wrong. Please try again later.');
+    }
+
+    const medicationId = parseInt(ctx.match[1]);
+    const result = await this.handleSkipNotification(medicationId);
+
+    if (result.success && result.medication) {
+      await ctx.editMessageText(
+        `⏭️ **Notification Postponed**\n\n` +
+          `💊 ${result.medication.name}\n` +
+          // `🔔 Next reminder: ${result.nextNotificationDate.toLocaleDateString()}\n\n` +
+          `✅ *You'll receive another notification in 1 month.*`,
+        { parse_mode: 'Markdown' }
+      );
+      await ctx.answerCbQuery('Notification postponed for 1 month');
+    } else {
+      await ctx.answerCbQuery('Error processing your request');
+    }
+  }
+
+  // todo
+  async onAcceptNotification(ctx: ActionContext) {
+    if (!ctx.match) {
+      throw new Error('Something went wrong. Please try again later.');
+    }
+
+    const medicationId = parseInt(ctx.match[1]);
+    const result = await this.handleAcceptNotification(medicationId);
+
+    if (result.success && result.medication) {
+      await ctx.editMessageText(
+        `✅ **Medication Removed**\n\n` +
+          `💊 ${result.medication.name}\n` +
+          `🗑️ *Medication has been removed from your list.*\n\n` +
+          `*No more notifications will be sent for this medication.*`,
+        { parse_mode: 'Markdown' }
+      );
+      await ctx.answerCbQuery('Medication removed successfully');
+    } else {
+      await ctx.answerCbQuery('Error processing your request');
+    }
+  }
+
+  // todo where to place this method? in botservice or notification service?
+  private async handleSkipNotification(medicationId: number) {
+    console.log(`handleSkipNotification for ${medicationId}`);
+    // TODO update notification date
+    return {
+      success: true,
+      medication: {
+        name: 'm1',
+      },
+    };
+  }
+
+  // todo
+  private async handleAcceptNotification(medicationId: number) {
+    console.log(`handleAcceptNotification for ${medicationId}`);
+    // todo remove notification and medication
+    return {
+      success: true,
+      medication: {
+        name: 'm1',
+      },
+    };
   }
 
   private async handleMedicationSave(ctx: TextMessageContext, chatId: number) {
@@ -292,91 +351,27 @@ export class BotService {
     return ctx.reply('Please enter the expiration date (YYYY-MM-DD):');
   }
 
-  async sendDueNotifications(): Promise<void> {
-    try {
-      const notifications = await this.notificationService.getTodayNotificationsWithMedications();
-      await this.sendExpirationMessages(notifications);
-    } catch (e) {
-      if (e instanceof Error) {
-        logger.error(`Failed to send notifications today.`, {
-          error: e.message,
-          stack: e.stack,
-        });
-      } else {
-        logger.error(`Failed to send notifications today.`, {
-          error: String(e),
-        });
-      }
-    }
-  }
+  private getTelegramUserInfo(ctx: Context): TelegramUserInfo {
+    logger.debug(`Try to get telegram user info`, { ctxFrom: JSON.stringify(ctx.from) });
 
-  // todo
-  async onSkipNotification(ctx: ActionContext) {
-    if (!ctx.match) {
-      throw new Error('Something went wrong. Please try again later.');
+    if (ctx.from == null) {
+      logger.error(`No user information in context`, { ctx: String(ctx) });
+      throw new Error('No user information in context');
     }
 
-    const medicationId = parseInt(ctx.match[1]);
-    const result = await this.handleSkipNotification(medicationId);
+    const chatId = ctx.chat?.id;
 
-    if (result.success && result.medication) {
-      await ctx.editMessageText(
-        `⏭️ **Notification Postponed**\n\n` +
-          `💊 ${result.medication.name}\n` +
-          // `🔔 Next reminder: ${result.nextNotificationDate.toLocaleDateString()}\n\n` +
-          `✅ *You'll receive another notification in 1 month.*`,
-        { parse_mode: 'Markdown' }
-      );
-      await ctx.answerCbQuery('Notification postponed for 1 month');
-    } else {
-      await ctx.answerCbQuery('Error processing your request');
-    }
-  }
-
-  // todo
-  async onAcceptNotification(ctx: ActionContext) {
-    if (!ctx.match) {
-      throw new Error('Something went wrong. Please try again later.');
+    const telegramId = ctx.from.id;
+    if (chatId == null) {
+      logger.error(`No chatId for user`, { telegramId });
+      throw new Error(`No chatId for user: ${telegramId}`);
     }
 
-    const medicationId = parseInt(ctx.match[1]);
-    const result = await this.handleAcceptNotification(medicationId);
-
-    if (result.success && result.medication) {
-      await ctx.editMessageText(
-        `✅ **Medication Removed**\n\n` +
-          `💊 ${result.medication.name}\n` +
-          `🗑️ *Medication has been removed from your list.*\n\n` +
-          `*No more notifications will be sent for this medication.*`,
-        { parse_mode: 'Markdown' }
-      );
-      await ctx.answerCbQuery('Medication removed successfully');
-    } else {
-      await ctx.answerCbQuery('Error processing your request');
-    }
-  }
-
-  // todo where to place this method? in botservice or notification service?
-  async handleSkipNotification(medicationId: number) {
-    console.log(`handleSkipNotification for ${medicationId}`);
-    // TODO update notification date
     return {
-      success: true,
-      medication: {
-        name: 'm1',
-      },
-    };
-  }
-
-  // todo
-  async handleAcceptNotification(medicationId: number) {
-    console.log(`handleAcceptNotification for ${medicationId}`);
-    // todo remove notification and medication
-    return {
-      success: true,
-      medication: {
-        name: 'm1',
-      },
+      telegramId,
+      chatId: chatId,
+      username: ctx.from.username,
+      firstName: ctx.from.first_name,
     };
   }
 }
