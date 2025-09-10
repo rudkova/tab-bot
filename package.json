@@ -43,7 +43,8 @@
     "**/*.ts": [
       "eslint --fix",
       "prettier --write",
-      "tsc-files --noEmit --incremental false"
+      "tsc-files --noEmit --incremental false",
+      "npm run test"
     ],
     "**/*.{js,json,md,yml,yaml}": [
       "prettier --write"
