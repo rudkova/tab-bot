@@ -14,6 +14,11 @@ import { NotificationService } from '../features/notification/services/notificat
 import { NotificationCron } from '../jobs/notification-cron.ts';
 import { NotificationRepository } from '../features/notification/services/notification.repository.ts';
 import { BotService } from './bot.service.ts';
+import { OnStartHandler } from './handlers/on-start.handler.ts';
+import { OnHelpHandler } from './handlers/on-help.handler.ts';
+import { AddMedicationHandler } from './handlers/add-medication.handler.ts';
+import { AddMedicationTextHandler } from './handlers/add-medication-text-handler.ts';
+import { OnCancelHandler } from './handlers/on-cancel.handler.ts';
 
 export async function createBot(): Promise<Telegraf> {
   logger.info('Try to create bot');
@@ -33,18 +38,38 @@ export async function createBot(): Promise<Telegraf> {
   const medicationValidator = new MedicationValidator();
   const notificationService = new NotificationService(notificationRepository);
 
-  const botService = new BotService(
-    bot.telegram,
-    userService,
+  const botService = new BotService(bot.telegram, notificationService);
+
+  // Create handlers
+  const onStartHandler = new OnStartHandler(botService, userService);
+  const onHelpHandler = new OnHelpHandler(botService);
+  const addMedicationHandler = new AddMedicationHandler(
+    botService,
     conversationStateService,
+    userService
+  );
+  const addMedicationTextHandler = new AddMedicationTextHandler(
+    botService,
+    conversationStateService,
+    userService,
     medicationService,
     medicationValidator,
     notificationService
   );
+  const onCancelHandler = new OnCancelHandler(botService, conversationStateService);
+
+  // Setup router with all handlers
+  const router = new BotRouterService(
+    onStartHandler,
+    onHelpHandler,
+    addMedicationHandler,
+    addMedicationTextHandler,
+    onCancelHandler
+  );
 
   const notificationCron = new NotificationCron(botService);
-  const router = new BotRouterService(botService);
 
+  // Setup bot commands and handlers
   await router.setupCommands(bot);
 
   logger.info('Bot is created');
