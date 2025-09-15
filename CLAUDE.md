@@ -90,3 +90,4 @@ npx prisma migrate dev --name init
 - Prettier for formatting
 - Pre-commit hooks enforce code quality
 - Use comments sparingly - only comment complex code
+- Always use descriptive variable names
