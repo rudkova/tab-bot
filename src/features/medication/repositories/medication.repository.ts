@@ -36,6 +36,14 @@ export class MedicationRepository {
     });
   };
 
+  getMedicationById = async (id: number): Promise<Medication | null> => {
+    return this.prismaClient.medication.findUnique({
+      where: {
+        id,
+      },
+    });
+  };
+
   updateMedication = async (
     id: number,
     { name, expirationDate, notes }: Partial<MedicationDataType>
