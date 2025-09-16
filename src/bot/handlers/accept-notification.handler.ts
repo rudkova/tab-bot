@@ -3,6 +3,7 @@ import logger from '../../shared/logger/logger.ts';
 import type { BotService } from '../bot.service.ts';
 import type { BotActionHandler } from '../types/bot-action-handler.interface.ts';
 import type { IMedicationService } from '../../features/medication/types/medication.service.interface.ts';
+import { logError } from '../../shared/utils/error-logger.util.ts';
 
 export class AcceptNotificationHandler implements BotActionHandler<ActionContext> {
   constructor(
@@ -29,16 +30,8 @@ export class AcceptNotificationHandler implements BotActionHandler<ActionContext
           { parse_mode: 'Markdown' }
         );
       } catch (e) {
-        if (e instanceof Error) {
-          logger.error(`FUCK`, {
-            error: e.message,
-            stack: e.stack,
-          });
-        } else {
-          logger.error(`FUCK`, {
-            error: String(e),
-          });
-        }
+        // todo think msg
+        logError('Failed to edit message text', e);
 
         // todo throw error
       }
@@ -46,16 +39,8 @@ export class AcceptNotificationHandler implements BotActionHandler<ActionContext
       try {
         await ctx.answerCbQuery('Medication removed successfully');
       } catch (e) {
-        if (e instanceof Error) {
-          logger.error(`FUCK answerCbQuery`, {
-            error: e.message,
-            stack: e.stack,
-          });
-        } else {
-          logger.error(`FUCK answerCbQuery`, {
-            error: String(e),
-          });
-        }
+        // todo think msg
+        logError('Failed to answer callback query', e);
       }
     } else {
       await ctx.answerCbQuery('Error processing your request');

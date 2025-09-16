@@ -4,6 +4,7 @@ import { MedicationRepository } from '../repositories/medication.repository.ts';
 import type { MedicationDataType } from '../types/medicationDataType.ts';
 import { formatDate } from '../../../shared/utils/date.util.ts';
 import type { IMedicationService } from '../types/medication.service.interface.ts';
+import { logError } from '../../../shared/utils/error-logger.util.ts';
 
 export class MedicationService implements IMedicationService {
   constructor(private readonly medicationRepository: MedicationRepository) {}
@@ -38,26 +39,13 @@ export class MedicationService implements IMedicationService {
 
       return medication;
     } catch (e) {
-      if (e instanceof Error) {
-        logger.error(`Failed to create medication.`, {
-          medicationData: {
-            name,
-            expirationDate: formatDate(expirationDate),
-            notes,
-          },
-          error: e.message,
-          stack: e.stack,
-        });
-      } else {
-        logger.error(`Failed to create medication.`, {
-          medicationData: {
-            name,
-            expirationDate: formatDate(expirationDate),
-            notes,
-          },
-          error: String(e),
-        });
-      }
+      logError('Failed to create medication', e, {
+        medicationData: {
+          name,
+          expirationDate: formatDate(expirationDate),
+          notes,
+        },
+      });
 
       throw e;
     }
@@ -77,18 +65,7 @@ export class MedicationService implements IMedicationService {
 
       return medication;
     } catch (e) {
-      if (e instanceof Error) {
-        logger.error(`Failed to get medication`, {
-          id,
-          error: e.message,
-          stack: e.stack,
-        });
-      } else {
-        logger.error(`Failed to get medication`, {
-          id,
-          error: String(e),
-        });
-      }
+      logError('Failed to get medication', e, { id });
 
       throw e;
     }
@@ -104,18 +81,7 @@ export class MedicationService implements IMedicationService {
 
       return medication;
     } catch (e) {
-      if (e instanceof Error) {
-        logger.error(`Failed to delete medication`, {
-          id,
-          error: e.message,
-          stack: e.stack,
-        });
-      } else {
-        logger.error(`Failed to delete medication`, {
-          id,
-          error: String(e),
-        });
-      }
+      logError('Failed to delete medication', e, { id });
 
       throw e;
     }
@@ -142,25 +108,16 @@ export class MedicationService implements IMedicationService {
 
       return medication;
     } catch (e) {
-      if (e instanceof Error) {
-        logger.error(`Failed to update medication`, {
-          id,
-          updateData: {
-            name: medicationData.name,
-            expirationDate: medicationData.expirationDate
-              ? formatDate(medicationData.expirationDate)
-              : undefined,
-            notes: medicationData.notes,
-          },
-          error: e.message,
-          stack: e.stack,
-        });
-      } else {
-        logger.error(`Failed to update medication`, {
-          id,
-          error: String(e),
-        });
-      }
+      logError('Failed to update medication', e, {
+        id,
+        updateData: {
+          name: medicationData.name,
+          expirationDate: medicationData.expirationDate
+            ? formatDate(medicationData.expirationDate)
+            : undefined,
+          notes: medicationData.notes,
+        },
+      });
 
       throw e;
     }

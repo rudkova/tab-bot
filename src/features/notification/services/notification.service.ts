@@ -4,6 +4,7 @@ import { formatDate, getStartOfDay } from '../../../shared/utils/date.util.ts';
 import type { NotificationWithMedication } from '../types/NotificationWithMedication.ts';
 import { replaceWithoutProps } from '../../../shared/utils/string.util.ts';
 import type { INotificationService } from '../types/notification.service.interface.ts';
+import { logError } from '../../../shared/utils/error-logger.util.ts';
 
 export class NotificationService implements INotificationService {
   private readonly sensitiveFields;
@@ -45,26 +46,13 @@ export class NotificationService implements INotificationService {
         medicationId,
       });
     } catch (e) {
-      if (e instanceof Error) {
-        logger.error('Failed to create notification.', {
-          notificationData: {
-            medicationId,
-            expirationDate,
-            chatId,
-          },
-          error: e.message,
-          stack: e.stack,
-        });
-      } else {
-        logger.error('Failed to create notification.', {
-          notificationData: {
-            medicationId,
-            expirationDate,
-            chatId,
-          },
-          error: String(e),
-        });
-      }
+      logError('Failed to create notification', e, {
+        notificationData: {
+          medicationId,
+          expirationDate,
+          chatId,
+        },
+      });
       throw e;
     }
   }
@@ -79,16 +67,7 @@ export class NotificationService implements INotificationService {
       });
       return notifications;
     } catch (e) {
-      if (e instanceof Error) {
-        logger.error(`Failed to fetch today notifications.`, {
-          error: e.message,
-          stack: e.stack,
-        });
-      } else {
-        logger.error(`Failed to fetch today notifications.`, {
-          error: String(e),
-        });
-      }
+      logError('Failed to fetch today notifications', e);
 
       throw e;
     }

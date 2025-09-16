@@ -1,6 +1,7 @@
 import logger from '../shared/logger/logger.ts';
 import cron from 'node-cron';
 import type { BotService } from '../bot/bot.service.ts';
+import { logError } from '../shared/utils/error-logger.util.ts';
 
 export class NotificationCron {
   constructor(private readonly botService: BotService) {}
@@ -16,16 +17,7 @@ export class NotificationCron {
         await this.botService.sendTodayNotifications();
         logger.info('Cron Job. Daily notification check completed');
       } catch (e) {
-        if (e instanceof Error) {
-          logger.error(`Cron Job. Error in daily notification send.`, {
-            error: e.message,
-            stack: e.stack,
-          });
-        } else {
-          logger.error(`Cron Job. Error in daily notification send.`, {
-            error: String(e),
-          });
-        }
+        logError('Cron Job. Error in daily notification send', e);
       }
     });
 

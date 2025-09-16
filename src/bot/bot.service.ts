@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import logger from '../shared/logger/logger.ts';
 import type { ActionContext } from './types/context.type.ts';
 import type { INotificationService } from '../features/notification/types/notification.service.interface.ts';
+import { logError } from '../shared/utils/error-logger.util.ts';
 
 export class BotService {
   constructor(
@@ -51,16 +52,7 @@ export class BotService {
         );
       }
     } catch (e) {
-      if (e instanceof Error) {
-        logger.error(`Failed to send notifications today.`, {
-          error: e.message,
-          stack: e.stack,
-        });
-      } else {
-        logger.error(`Failed to send notifications today.`, {
-          error: String(e),
-        });
-      }
+      logError('Failed to send notifications today', e);
     }
   }
 
