@@ -91,3 +91,7 @@ npx prisma migrate dev --name init
 - Pre-commit hooks enforce code quality
 - Use comments sparingly - only comment complex code
 - Always use descriptive variable names
+
+## Database
+
+- The database schema is defined in @prisma/schema.prisma file. Refer to this file anytime you need to understand structure of data stored in the database.
