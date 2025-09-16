@@ -91,6 +91,7 @@ npx prisma migrate dev --name init
 - Pre-commit hooks enforce code quality
 - Use comments sparingly - only comment complex code
 - Always use descriptive variable names
+- use project code style for error handling and logging
 
 ## Database
 
