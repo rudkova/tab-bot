@@ -13,7 +13,7 @@ export class NotificationCron {
     cron.schedule(this.pattern, async () => {
       logger.info('Cron Job. Started');
       try {
-        await this.botService.sendDueNotifications();
+        await this.botService.sendTodayNotifications();
         logger.info('Cron Job. Daily notification check completed');
       } catch (e) {
         if (e instanceof Error) {

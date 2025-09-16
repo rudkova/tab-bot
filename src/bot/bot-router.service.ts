@@ -6,8 +6,20 @@ import type { AddMedicationTextHandler } from './handlers/add-medication-text-ha
 import { OnStartHandler } from './handlers/on-start.handler.ts';
 import type { OnHelpHandler } from './handlers/on-help.handler.ts';
 import type { OnCancelHandler } from './handlers/on-cancel.handler.ts';
+import type { SkipNotificationHandler } from './handlers/skip-notification.handler.ts';
+import type { AcceptNotificationHandler } from './handlers/accept-notification.handler.ts';
 
 export class BotRouterService {
+  constructor(
+    private readonly onStartHandler: OnStartHandler,
+    private readonly onHelpHandler: OnHelpHandler,
+    private readonly addMedicationHandler: AddMedicationHandler,
+    private readonly textHandler: AddMedicationTextHandler,
+    private readonly onCancelHandler: OnCancelHandler,
+    private readonly acceptNotificationHandler: AcceptNotificationHandler,
+    private readonly skipNotificationHandler: SkipNotificationHandler
+  ) {}
+
   private readonly commands = [
     { command: 'start', description: 'Start the bot' },
     { command: 'help', description: 'Show help message' },
@@ -16,14 +28,6 @@ export class BotRouterService {
     { command: 'contact_developer', description: 'Contact the developer' },
   ];
 
-  constructor(
-    private readonly onStartHandler: OnStartHandler,
-    private readonly onHelpHandler: OnHelpHandler,
-    private readonly addMedicationHandler: AddMedicationHandler,
-    private readonly textHandler: AddMedicationTextHandler,
-    private readonly onCancelHandler: OnCancelHandler
-  ) {}
-
   /**
    * Sets up command handlers for the bot
    * @param bot The Telegraf bot instance
@@ -31,7 +35,7 @@ export class BotRouterService {
   async setupCommands(bot: Telegraf): Promise<void> {
     logger.info('Bot setup commands', { commands: this.commands });
     await bot.telegram.setMyCommands(this.commands);
-    await this.setupNotificationHandlers(/*bot*/);
+    await this.setupNotificationHandlers(bot);
 
     bot.start(ctx => this.onStartHandler.handle(ctx));
 
@@ -51,9 +55,8 @@ export class BotRouterService {
     bot.on(message('text'), async ctx => this.textHandler.handle(ctx));
   }
 
-  private async setupNotificationHandlers(/*bot: Telegraf*/): Promise<void> {
-    // todo call separate handelrs
-    // bot.action(/skip_(\d+)/, async ctx => this.botService.onSkipNotification(ctx));
-    // bot.action(/accept_(\d+)/, async ctx => this.botService.onAcceptNotification(ctx));
+  private async setupNotificationHandlers(bot: Telegraf): Promise<void> {
+    bot.action(/accept_(\d+)/, async ctx => this.acceptNotificationHandler.handle(ctx));
+    bot.action(/skip_(\d+)/, async ctx => this.skipNotificationHandler.handle(ctx));
   }
 }

@@ -19,6 +19,8 @@ import { OnHelpHandler } from './handlers/on-help.handler.ts';
 import { AddMedicationHandler } from './handlers/add-medication.handler.ts';
 import { AddMedicationTextHandler } from './handlers/add-medication-text-handler.ts';
 import { OnCancelHandler } from './handlers/on-cancel.handler.ts';
+import { AcceptNotificationHandler } from './handlers/accept-notification.handler.ts';
+import { SkipNotificationHandler } from './handlers/skip-notification.handler.ts';
 
 export async function createBot(): Promise<Telegraf> {
   logger.info('Try to create bot');
@@ -57,14 +59,17 @@ export async function createBot(): Promise<Telegraf> {
     notificationService
   );
   const onCancelHandler = new OnCancelHandler(botService, conversationStateService);
+  const acceptNotificationHandler = new AcceptNotificationHandler(botService, medicationService);
+  const skipNotificationHandler = new SkipNotificationHandler(botService, userService);
 
-  // Setup router with all handlers
   const router = new BotRouterService(
     onStartHandler,
     onHelpHandler,
     addMedicationHandler,
     addMedicationTextHandler,
-    onCancelHandler
+    onCancelHandler,
+    acceptNotificationHandler,
+    skipNotificationHandler
   );
 
   const notificationCron = new NotificationCron(botService);

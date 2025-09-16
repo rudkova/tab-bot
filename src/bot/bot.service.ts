@@ -1,4 +1,4 @@
-import { Context, Telegram } from 'telegraf';
+import { Context, Telegram, Markup } from 'telegraf';
 import type { TelegramUserInfo } from './types/user-info.model.ts';
 import { format } from 'date-fns';
 import logger from '../shared/logger/logger.ts';
@@ -22,32 +22,30 @@ export class BotService {
     'Available commands:\n' +
     `${this.commands.map(c => `/${c.command} - ${c.description}`).join('\n')}`;
 
-  async sendDueNotifications(): Promise<void> {
+  async sendTodayNotifications(): Promise<void> {
     try {
       const notifications = await this.notificationService.getTodayNotificationsWithMedications();
-      for (const { chatId, medication } of notifications) {
-        const keyboard = {
-          inline_keyboard: [
-            [
-              {
-                text: '⏭️ Remind in 1 month',
-                callback_data: `skip_${medication.id}`,
-              },
-              {
-                text: '✅ Remove medication',
-                callback_data: `accept_${medication.id}`,
-              },
-            ],
-          ],
-        };
 
+      for (const { chatId, medication } of notifications) {
         const formattedDate = format(medication.expirationDate, 'yyyy-MM-dd');
+        const timestamp = Date.now();
 
         await this.bot.sendMessage(
           chatId,
           `Medication ${medication.name} will expire ${formattedDate}`,
           {
-            reply_markup: keyboard,
+            reply_markup: Markup.inlineKeyboard([
+              [
+                Markup.button.callback(
+                  '✅ Remove medication',
+                  `accept_${medication.id}_${timestamp}`
+                ),
+                Markup.button.callback(
+                  '⏭️ Remind in 1 month',
+                  `skip_${medication.id}_${timestamp}`
+                ),
+              ],
+            ]).reply_markup,
             parse_mode: 'Markdown',
           }
         );
@@ -89,45 +87,10 @@ export class BotService {
     }
   }
 
-  // todo
-  async onAcceptNotification(ctx: ActionContext) {
-    if (!ctx.match) {
-      throw new Error('Something went wrong. Please try again later.');
-    }
-
-    const medicationId = parseInt(ctx.match[1]);
-    const result = await this.handleAcceptNotification(medicationId);
-
-    if (result.success && result.medication) {
-      await ctx.editMessageText(
-        `✅ **Medication Removed**\n\n` +
-          `💊 ${result.medication.name}\n` +
-          `🗑️ *Medication has been removed from your list.*\n\n` +
-          `*No more notifications will be sent for this medication.*`,
-        { parse_mode: 'Markdown' }
-      );
-      await ctx.answerCbQuery('Medication removed successfully');
-    } else {
-      await ctx.answerCbQuery('Error processing your request');
-    }
-  }
-
   // todo where to place this method? in botservice or notification service?
   private async handleSkipNotification(medicationId: number) {
     console.log(`handleSkipNotification for ${medicationId}`);
     // TODO update notification date
-    return {
-      success: true,
-      medication: {
-        name: 'm1',
-      },
-    };
-  }
-
-  // todo
-  private async handleAcceptNotification(medicationId: number) {
-    console.log(`handleAcceptNotification for ${medicationId}`);
-    // todo remove notification and medication
     return {
       success: true,
       medication: {
